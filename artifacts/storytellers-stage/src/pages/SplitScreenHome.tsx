@@ -4,7 +4,7 @@ import { Theater, BookOpen } from 'lucide-react';
 import { useLocale } from '@/hooks/use-locale';
 import { SiteHeader } from '@/components/SiteHeader';
 import { cn } from '@/lib/utils';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 import { staticTitle, staticDesc, buildHreflang, buildPageUrl, type SeoLocale } from '@/lib/seo';
 
@@ -52,41 +52,58 @@ export function SplitScreenHome() {
       >
         <div className="absolute inset-0 bg-black/0 group-hover:bg-white/5 transition-colors duration-500 z-0" />
         
-        <div className="relative z-10 flex flex-col items-center justify-center gap-6 p-8 text-center max-w-sm pointer-events-none">
-          <Theater size={48} className="opacity-80" />
-          <h2 className="text-4xl font-serif font-bold leading-snug">{t.plays.title}</h2>
-          <p className="text-sm text-white/70 leading-relaxed font-sans">{t.hero.exploreStage}</p>
+        {/* Content wrapper */}
+        <div className={cn(
+          "relative z-10 flex flex-col items-center text-center px-8 transition-opacity duration-300 min-w-max",
+          expandingPane === 'tales' ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        )}>
+          <div className="mb-6 p-4 rounded-full bg-white/10 group-hover:scale-110 group-hover:bg-stage-mint/20 transition-all duration-500">
+            <Theater className="w-12 h-12 text-stage-mint" strokeWidth={1.5} />
+          </div>
+          <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-tight text-[#DBBD67]">
+            {t.nav.plays}
+          </h2>
+          <p className="font-mono text-sm md:text-base uppercase tracking-widest text-white/80 group-hover:text-stage-mint transition-colors duration-300">
+            {t.hero.exploreStage}
+          </p>
         </div>
       </motion.div>
-
-      {/* Divider */}
-      <div
-        className={cn(
-          "w-px bg-white/20 shrink-0 z-20 transition-all duration-700",
-          expandingPane !== null && 'w-0 opacity-0'
-        )}
-      />
 
       {/* Fairy Tales Pane (Right) */}
       <motion.div
         className={cn(
           "split-pane relative h-full flex items-center justify-center cursor-pointer group z-10 shrink-0",
           "bg-stage-yellow bg-[radial-gradient(circle_at_center,_var(--color-stage-yellow)_0%,_#C9A850_100%)]",
-          "text-white",
+          "text-stage-dark",
           (expandingPane === 'plays') ? 'w-0' : (expandingPane === 'tales') ? 'w-full' : 'w-1/2'
         )}
         onClick={() => handlePaneClick('tales', `/${locale}/fairy-tales`)}
         data-testid="pane-tales"
         initial={false}
       >
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-white/5 transition-colors duration-500 z-0" />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-white/10 transition-colors duration-500 z-0" />
         
-        <div className="relative z-10 flex flex-col items-center justify-center gap-6 p-8 text-center max-w-sm pointer-events-none">
-          <BookOpen size={48} className="opacity-80" />
-          <h2 className="text-4xl font-serif font-bold leading-snug">{t.fairyTales.title}</h2>
-          <p className="text-sm text-white/70 leading-relaxed font-sans">{t.hero.enterMagic}</p>
+        {/* Content wrapper */}
+        <div className={cn(
+          "relative z-10 flex flex-col items-center text-center px-8 transition-opacity duration-300 min-w-max",
+          expandingPane === 'plays' ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        )}>
+          <div className="mb-6 p-4 rounded-full bg-black/5 group-hover:scale-110 group-hover:bg-stage-mint/20 transition-all duration-500">
+            <BookOpen className="w-12 h-12 text-stage-mint" strokeWidth={1.5} />
+          </div>
+          <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-tight text-[#C25F84]">
+            {t.nav.fairyTales}
+          </h2>
+          <p className="font-mono text-sm md:text-base uppercase tracking-widest text-stage-dark/70 group-hover:text-stage-mint transition-colors duration-300">
+            {t.hero.enterMagic}
+          </p>
         </div>
       </motion.div>
+
+      {/* Absolute center divider visual */}
+      {!expandingPane && (
+        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/20 mix-blend-overlay z-20 pointer-events-none" />
+      )}
     </div>
   );
 }

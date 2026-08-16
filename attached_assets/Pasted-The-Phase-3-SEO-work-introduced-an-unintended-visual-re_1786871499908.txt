@@ -1,0 +1,168 @@
+The Phase 3 SEO work introduced an unintended visual regression on the public homepage.
+
+Please restore the **exact approved homepage UI from the checkpoint immediately before Phase 3 SEO started**, while preserving ALL SEO functionality added in Phase 3.
+
+This is a visual restoration task only.
+
+## Critical requirement
+
+Use the Replit checkpoint / git diff from immediately before the Phase 3 SEO work as the source of truth for the homepage design.
+
+Do NOT redesign or approximate the previous appearance from memory.
+
+Compare the current homepage-related files against the last pre-SEO checkpoint and restore the previous UI values.
+
+## Homepage content that must be restored
+
+The two primary homepage section titles must be exactly:
+
+* `Plays`
+* `Fairy Tales`
+
+Do NOT use:
+
+* `Theatrical Plays`
+* any expanded SEO-oriented wording
+* any new descriptive wording in these large visual titles
+
+SEO-friendly wording belongs in `<title>`, metadata, structured data, etc. — **not in the visual hero headings unless it existed before Phase 3**.
+
+Apply the corresponding correct translations for the other locales based on the **pre-SEO translation state**, not any wording introduced during Phase 3.
+
+## Restore the previous typography exactly
+
+Restore the exact pre-SEO values for:
+
+* hero title font size
+* responsive font sizes
+* font weight
+* line height
+* letter spacing
+* positioning
+* margins
+* padding
+* alignment
+
+The homepage previously used much larger display typography than it does now.
+
+Do not choose new font sizes manually if the previous values can be recovered from the checkpoint.
+
+## Preserve the approved colour system
+
+Keep the already approved palette:
+
+### Plays
+
+* background: rose pink `#C25F84`
+* large `Plays` title: warm yellow `#DBBD67`
+
+### Fairy Tales
+
+* background: warm yellow `#DBBD67`
+* large `Fairy Tales` title: rose pink `#C25F84`
+
+Shared mint accent:
+
+* `#679C81`
+
+## Important: subtitles must NOT be changed
+
+Do not change the subtitle/tagline directly beneath either main title.
+
+Preserve:
+
+* its wording from the pre-SEO approved UI
+* its font
+* its size
+* its color
+* its spacing
+* its position
+
+Do not recolor those subtitles as part of this task.
+
+## Preserve the original split-screen experience
+
+Restore and preserve the approved:
+
+* 50/50 split-screen composition
+* transitions and animation
+* hover behaviour
+* panel expansion behaviour
+* header placement
+* language switcher
+* icons
+* spacing
+* desktop and mobile responsive behaviour
+
+Do not redesign any of these elements.
+
+## DO NOT roll back Phase 3 SEO
+
+The following Phase 3 work must remain intact:
+
+* `meta-server.ts`
+* initial HTML metadata injection
+* locale-specific `<html lang>`
+* `<title>` and meta description logic
+* canonical URLs
+* hreflang
+* Open Graph
+* Twitter metadata
+* JSON-LD
+* dynamic sitemap
+* robots.txt
+* correct HTTP 404 handling
+* React Helmet / HelmetProvider
+* CMS SEO fields
+* image alt-text fields
+* all security and CMS work from earlier phases
+
+The objective is:
+
+**Phase 2 approved visual frontend + Phase 3 SEO functionality**
+
+not a rollback of the application.
+
+## Check other public pages for visual regressions
+
+Compare the public UI files changed during Phase 3 against the pre-SEO checkpoint.
+
+If Phase 3 accidentally changed purely visual properties on:
+
+* Plays listing
+* Play detail
+* Fairy Tales listing
+* Fairy Tale detail
+* About
+* Contact
+* SiteHeader
+
+restore those visual properties as well.
+
+Do NOT revert changes that are genuinely required for SEO functionality.
+
+## Verification
+
+After restoring the UI, verify:
+
+1. Homepage visually matches the pre-Phase-3 checkpoint.
+2. Main title is `Plays`, not `Theatrical Plays`.
+3. Fairy Tales title uses the previous wording.
+4. Original large display typography is restored.
+5. Plays title is yellow on pink.
+6. Fairy Tales title is pink on yellow.
+7. Subtitle/tagline appearance has not changed.
+8. Split-screen animation behaves as before.
+9. EN / UA / RU / NL still work.
+10. SEO metadata remains present in the initial HTML.
+11. sitemap.xml still works.
+12. robots.txt still works.
+13. TypeScript/build checks pass.
+
+After making the restoration, STOP and report:
+
+* which visual files were unintentionally changed during Phase 3;
+* which values/text you restored from the pre-SEO checkpoint;
+* confirmation that no SEO functionality was rolled back.
+
+Do not perform any additional redesign or SEO work.
