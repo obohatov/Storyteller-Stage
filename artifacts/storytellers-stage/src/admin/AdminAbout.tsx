@@ -26,7 +26,8 @@ export default function AdminAbout() {
 
   const [localData, setLocalData] = useState({
     body: '',
-    authorPhotoPath: null as string | null
+    authorPhotoPath: null as string | null,
+    authorPhotoAlt: '' as string
   });
 
   const initializedForLoc = useRef<string | null>(null);
@@ -36,13 +37,15 @@ export default function AdminAbout() {
       initializedForLoc.current = activeTab;
       setLocalData({
         body: aboutData.body || '',
-        authorPhotoPath: aboutData.authorPhotoPath || null
+        authorPhotoPath: aboutData.authorPhotoPath || null,
+        authorPhotoAlt: (aboutData as any).authorPhotoAlt || ''
       });
     } else if (!aboutData && !isLoading) {
       initializedForLoc.current = activeTab;
       setLocalData({
         body: '',
-        authorPhotoPath: null
+        authorPhotoPath: null,
+        authorPhotoAlt: ''
       });
     }
   }, [aboutData, activeTab, isLoading]);
@@ -52,7 +55,8 @@ export default function AdminAbout() {
       locale: activeTab,
       data: {
         body: localData.body,
-        authorPhotoPath: localData.authorPhotoPath
+        authorPhotoPath: localData.authorPhotoPath,
+        authorPhotoAlt: localData.authorPhotoAlt || null
       }
     }, {
       onSuccess: () => {
@@ -114,6 +118,20 @@ export default function AdminAbout() {
                   label="Author Portrait"
                   value={localData.authorPhotoPath}
                   onChange={path => setLocalData(p => ({ ...p, authorPhotoPath: path }))}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-stage-dark mb-2">
+                  Author Photo Alt Text <span className="text-stage-dark/40 font-normal">(accessibility & SEO)</span>
+                </label>
+                <input
+                  type="text"
+                  value={localData.authorPhotoAlt}
+                  onChange={e => setLocalData(p => ({ ...p, authorPhotoAlt: e.target.value }))}
+                  className="w-full px-4 py-3 bg-white border border-[#DCD6CC] rounded-lg focus:outline-none focus:ring-2 focus:ring-stage-mint/50"
+                  placeholder="Describe the author photo for screen readers and search engines…"
+                  maxLength={300}
                 />
               </div>
 

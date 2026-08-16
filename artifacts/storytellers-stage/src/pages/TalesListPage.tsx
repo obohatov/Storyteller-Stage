@@ -3,6 +3,8 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { Link } from 'wouter';
 import { ChevronRight, Loader2 } from 'lucide-react';
 import { useListPublicFairyTales, getListPublicFairyTalesQueryKey } from '@workspace/api-client-react';
+import { Helmet } from 'react-helmet-async';
+import { staticTitle, staticDesc, buildHreflang, buildPageUrl, type SeoLocale } from '@/lib/seo';
 
 export function TalesListPage() {
   const { locale, t } = useLocale();
@@ -13,8 +15,19 @@ export function TalesListPage() {
     }
   });
 
+  const hreflang = buildHreflang(l => buildPageUrl(l as SeoLocale, 'fairy-tales'));
+
   return (
     <div className="min-h-[100dvh] bg-stage-cream flex flex-col">
+      <Helmet htmlAttributes={{ lang: locale }}>
+        <title>{staticTitle('taleList', locale as SeoLocale)}</title>
+        <meta name="description" content={staticDesc('taleList', locale as SeoLocale)} />
+        <link rel="canonical" href={buildPageUrl(locale as SeoLocale, 'fairy-tales')} />
+        {hreflang.map(({ lang, href }) => (
+          <link key={lang} rel="alternate" hrefLang={lang} href={href} />
+        ))}
+      </Helmet>
+
       {/* Background tint header area */}
       <div className="absolute top-0 left-0 w-full h-96 bg-stage-yellow/10 -z-10" />
       
@@ -40,40 +53,48 @@ export function TalesListPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {tales?.map((tale) => (
-              <Link 
-                key={tale.slug} 
-                href={`/${locale}/fairy-tales/${tale.slug}`}
-                className="group block relative bg-white border border-stage-yellow/30 rounded-xl p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-                data-testid={`card-tale-${tale.slug}`}
-              >
-                {/* Subtle hover background fill */}
-                <div className="absolute inset-0 bg-stage-yellow/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                
-                <div className="relative z-10 flex flex-col h-full">
-                  {tale.coverImagePath && (
-                    <div className="w-full h-48 mb-6 overflow-hidden rounded-lg">
-                      <img src={`/api/storage/public-objects/${tale.coverImagePath}`} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            {tales?.map((tale) => {
+              const anyTale = tale as typeof tale & { coverImageAlt?: string };
+              return (
+                <Link 
+                  key={tale.slug} 
+                  href={`/${locale}/fairy-tales/${tale.slug}`}
+                  className="group block relative bg-white border border-stage-yellow/30 rounded-xl p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                  data-testid={`card-tale-${tale.slug}`}
+                >
+                  {/* Subtle hover background fill */}
+                  <div className="absolute inset-0 bg-stage-yellow/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                  
+                  <div className="relative z-10 flex flex-col h-full">
+                    {tale.coverImagePath && (
+                      <div className="w-full h-48 mb-6 overflow-hidden rounded-lg">
+                        <img
+                          src={`/api/storage/public-objects/${tale.coverImagePath}`}
+                          alt={anyTale.coverImageAlt || (tale.title ?? '')}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
+                    
+                    <h2 className="text-3xl font-serif font-bold text-stage-dark mb-4 group-hover:text-[#C9A850] transition-colors">
+                      {tale.title}
+                    </h2>
+                    
+                    {tale.blurb && (
+                      <p className="text-stage-dark/70 font-sans mb-8 flex-1">
+                        {tale.blurb}
+                      </p>
+                    )}
+                    
+                    <div className="flex items-center text-stage-mint font-medium font-sans tracking-wide text-sm mt-auto">
+                      <span>Read more</span>
+                      <ChevronRight className="w-4 h-4 ml-1 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                     </div>
-                  )}
-                  
-                  <h2 className="text-3xl font-serif font-bold text-stage-dark mb-4 group-hover:text-[#C9A850] transition-colors">
-                    {tale.title}
-                  </h2>
-                  
-                  {tale.blurb && (
-                    <p className="text-stage-dark/70 font-sans mb-8 flex-1">
-                      {tale.blurb}
-                    </p>
-                  )}
-                  
-                  <div className="flex items-center text-stage-mint font-medium font-sans tracking-wide text-sm mt-auto">
-                    <span>Read more</span>
-                    <ChevronRight className="w-4 h-4 ml-1 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         )}
       </main>

@@ -45,12 +45,19 @@ router.put("/admin/about/:locale", async (req: Request, res: Response): Promise<
     authorPhotoPath = body.authorPhotoPath;
   }
 
+  let authorPhotoAlt: string | null = null;
+  if (body.authorPhotoAlt !== undefined && body.authorPhotoAlt !== null) {
+    if (typeof body.authorPhotoAlt !== "string") { res.status(400).json({ error: "authorPhotoAlt", message: "must be a string" }); return; }
+    if (body.authorPhotoAlt.length > 300) { res.status(400).json({ error: "authorPhotoAlt", message: "must be at most 300 characters" }); return; }
+    authorPhotoAlt = body.authorPhotoAlt;
+  }
+
   const [row] = await db
     .insert(aboutTranslationsTable)
-    .values({ locale, body: richBody, authorPhotoPath })
+    .values({ locale, body: richBody, authorPhotoPath, authorPhotoAlt })
     .onConflictDoUpdate({
       target: [aboutTranslationsTable.locale],
-      set: { body: richBody, authorPhotoPath, updatedAt: new Date() },
+      set: { body: richBody, authorPhotoPath, authorPhotoAlt, updatedAt: new Date() },
     })
     .returning();
 
@@ -58,6 +65,7 @@ router.put("/admin/about/:locale", async (req: Request, res: Response): Promise<
     locale: row.locale,
     body: row.body,
     authorPhotoPath: row.authorPhotoPath,
+    authorPhotoAlt: row.authorPhotoAlt,
     updatedAt: row.updatedAt,
   });
 });

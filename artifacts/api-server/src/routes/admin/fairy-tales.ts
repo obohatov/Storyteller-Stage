@@ -221,13 +221,14 @@ router.put(
       const sanitizedBody = typeof rawBody === "string" ? sanitizeRichText(rawBody) : rawBody;
       const seoTitle = clampString(body.seoTitle, "seoTitle", 120);
       const seoDescription = clampString(body.seoDescription, "seoDescription", 320);
+      const coverImageAlt = clampString(body.coverImageAlt, "coverImageAlt", 300);
 
       await db
         .insert(fairyTaleTranslationsTable)
-        .values({ fairyTaleId: id, locale, title, blurb, body: sanitizedBody, seoTitle, seoDescription })
+        .values({ fairyTaleId: id, locale, title, blurb, body: sanitizedBody, seoTitle, seoDescription, coverImageAlt })
         .onConflictDoUpdate({
           target: [fairyTaleTranslationsTable.fairyTaleId, fairyTaleTranslationsTable.locale],
-          set: { title, blurb, body: sanitizedBody, seoTitle, seoDescription, updatedAt: new Date() },
+          set: { title, blurb, body: sanitizedBody, seoTitle, seoDescription, coverImageAlt, updatedAt: new Date() },
         });
 
       const detail = await getFairyTaleWithTranslations(id);

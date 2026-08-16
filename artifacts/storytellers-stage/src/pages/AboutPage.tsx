@@ -2,6 +2,8 @@ import { useLocale } from '@/hooks/use-locale';
 import { SiteHeader } from '@/components/SiteHeader';
 import { useGetPublicAbout, getGetPublicAboutQueryKey } from '@workspace/api-client-react';
 import { Loader2 } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
+import { staticTitle, staticDesc, buildHreflang, buildPageUrl, type SeoLocale } from '@/lib/seo';
 
 export function AboutPage() {
   const { locale, t } = useLocale();
@@ -12,8 +14,20 @@ export function AboutPage() {
     }
   });
 
+  const anyAbout = about as typeof about & { authorPhotoAlt?: string };
+  const hreflang = buildHreflang(l => buildPageUrl(l as SeoLocale, 'about'));
+
   return (
     <div className="min-h-[100dvh] bg-stage-cream flex flex-col">
+      <Helmet htmlAttributes={{ lang: locale }}>
+        <title>{staticTitle('about', locale as SeoLocale)}</title>
+        <meta name="description" content={staticDesc('about', locale as SeoLocale)} />
+        <link rel="canonical" href={buildPageUrl(locale as SeoLocale, 'about')} />
+        {hreflang.map(({ lang, href }) => (
+          <link key={lang} rel="alternate" hrefLang={lang} href={href} />
+        ))}
+      </Helmet>
+
       <SiteHeader showBack backHref={`/${locale}`} />
       
       <main className="flex-1 container mx-auto px-6 pt-32 pb-24 max-w-4xl flex flex-col justify-center items-center">
@@ -34,7 +48,12 @@ export function AboutPage() {
             {about.authorPhotoPath && (
               <div className="w-full md:w-1/3 shrink-0 rounded-2xl overflow-hidden shadow-xl bg-white p-2">
                 <div className="rounded-xl overflow-hidden aspect-[3/4]">
-                  <img src={`/api/storage/public-objects/${about.authorPhotoPath}`} alt="Author Portrait" className="w-full h-full object-cover" />
+                  <img
+                    src={`/api/storage/public-objects/${about.authorPhotoPath}`}
+                    alt={anyAbout.authorPhotoAlt || t.about.title}
+                    className="w-full h-full object-cover"
+                    loading="eager"
+                  />
                 </div>
               </div>
             )}

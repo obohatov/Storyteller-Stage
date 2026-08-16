@@ -55,6 +55,7 @@ router.get("/public/fairy-tales", async (req: Request, res: Response): Promise<v
       estimatedReadingTime: fairy_tales.estimatedReadingTime,
       themes: fairy_tales.themes,
       coverImagePath: fairy_tales.coverImagePath,
+      coverImageAlt: t.coverImageAlt,
       publishedAt: t.publishedAt,
     })),
   );
@@ -99,11 +100,14 @@ router.get("/public/fairy-tales/:slug", async (req: Request, res: Response): Pro
     title: translation.title,
     blurb: translation.blurb,
     body: translation.body,
+    seoTitle: translation.seoTitle,
+    seoDescription: translation.seoDescription,
     locale,
     ageRecommendation: tale.ageRecommendation,
     estimatedReadingTime: tale.estimatedReadingTime,
     themes: tale.themes,
     coverImagePath: tale.coverImagePath,
+    coverImageAlt: translation.coverImageAlt,
     publishedAt: translation.publishedAt,
     availableLocales: publishedTranslations.map((r) => r.locale),
   });
@@ -140,6 +144,7 @@ router.get("/public/plays", async (req: Request, res: Response): Promise<void> =
       estimatedDuration: plays.estimatedDuration,
       castSize: plays.castSize,
       coverImagePath: plays.coverImagePath,
+      coverImageAlt: t.coverImageAlt,
       publishedAt: t.publishedAt,
     })),
   );
@@ -186,6 +191,8 @@ router.get("/public/plays/:slug", async (req: Request, res: Response): Promise<v
     logline: translation.logline,
     synopsis: synopsisToReturn,
     excerpt: translation.excerpt,
+    seoTitle: translation.seoTitle,
+    seoDescription: translation.seoDescription,
     locale,
     genre: play.genre,
     targetAudience: play.targetAudience,
@@ -198,6 +205,7 @@ router.get("/public/plays/:slug", async (req: Request, res: Response): Promise<v
     stagingNotes: translation.stagingNotes,
     productionInfo: translation.productionInfo,
     coverImagePath: play.coverImagePath,
+    coverImageAlt: translation.coverImageAlt,
     publishedAt: translation.publishedAt,
     availableLocales: publishedTranslations.map((r) => r.locale),
   });
@@ -221,6 +229,7 @@ router.get("/public/about/:locale", async (req: Request, res: Response): Promise
     locale: row.locale,
     body: row.body,
     authorPhotoPath: row.authorPhotoPath,
+    authorPhotoAlt: row.authorPhotoAlt,
   });
 });
 

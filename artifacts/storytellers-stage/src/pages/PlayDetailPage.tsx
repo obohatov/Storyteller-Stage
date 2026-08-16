@@ -3,6 +3,8 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { useParams, Link } from 'wouter';
 import { useGetPublicPlay, getGetPublicPlayQueryKey } from '@workspace/api-client-react';
 import { Loader2 } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
+import { workTitle, buildHreflang, buildPageUrl, type SeoLocale } from '@/lib/seo';
 
 export function PlayDetailPage() {
   const { locale } = useLocale();
@@ -16,6 +18,12 @@ export function PlayDetailPage() {
       retry: false
     }
   });
+
+  const anyPlay = play as typeof play & { coverImageAlt?: string; seoTitle?: string; seoDescription?: string };
+
+  const hreflang = play?.available && play.availableLocales
+    ? buildHreflang(l => buildPageUrl(l as SeoLocale, 'plays', slug), play.availableLocales)
+    : [];
 
   if (isLoading) {
     return (
@@ -31,6 +39,9 @@ export function PlayDetailPage() {
   if (isError || !play || !play.available) {
     return (
       <div className="min-h-[100dvh] bg-stage-cream flex flex-col">
+        <Helmet htmlAttributes={{ lang: locale }}>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <SiteHeader showBack backHref={`/${locale}/plays`} theme="dark" />
         <main className="flex-1 container mx-auto px-6 flex flex-col items-center justify-center text-center max-w-2xl">
           <h1 className="text-4xl font-serif font-bold text-stage-dark mb-6">Not Available</h1>
@@ -48,8 +59,22 @@ export function PlayDetailPage() {
     );
   }
 
+  const pageTitle = anyPlay.seoTitle || workTitle(play.title ?? '', locale as SeoLocale);
+  const pageDesc = anyPlay.seoDescription || play.logline || '';
+  const coverUrl = play.coverImagePath ? `/api/storage/public-objects/${play.coverImagePath}` : undefined;
+
   return (
     <div className="min-h-[100dvh] bg-stage-cream flex flex-col">
+      <Helmet htmlAttributes={{ lang: locale }}>
+        <title>{pageTitle}</title>
+        {pageDesc && <meta name="description" content={pageDesc} />}
+        <link rel="canonical" href={buildPageUrl(locale as SeoLocale, 'plays', slug)} />
+        {hreflang.map(({ lang, href }) => (
+          <link key={lang} rel="alternate" hrefLang={lang} href={href} />
+        ))}
+        {coverUrl && <meta property="og:image" content={coverUrl} />}
+      </Helmet>
+
       <div className="absolute top-0 left-0 w-full h-[60vh] bg-stage-pink -z-10" />
       
       <SiteHeader showBack backHref={`/${locale}/plays`} theme="dark" />
@@ -58,7 +83,12 @@ export function PlayDetailPage() {
         
         {play.coverImagePath && (
           <div className="mb-12 shadow-2xl rounded-2xl overflow-hidden w-full max-w-lg aspect-square bg-white border border-white/20">
-            <img src={`/api/storage/public-objects/${play.coverImagePath}`} className="w-full h-full object-cover" alt="" />
+            <img
+              src={`/api/storage/public-objects/${play.coverImagePath}`}
+              className="w-full h-full object-cover"
+              alt={anyPlay.coverImageAlt || (play.title ?? '')}
+              loading="eager"
+            />
           </div>
         )}
         

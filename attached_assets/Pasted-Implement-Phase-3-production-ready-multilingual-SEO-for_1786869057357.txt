@@ -1,0 +1,490 @@
+Implement **Phase 3: production-ready multilingual SEO** for the existing public website.
+
+The current frontend, CMS, database model, authentication, colors, typography, animations and public layouts are approved.
+
+**Do not redesign anything.**
+
+Do not add contact-form delivery, newsletters, analytics, payments, comments or other new product features in this phase.
+
+The site has FOUR locales:
+
+* English: `en`
+* Ukrainian: `uk`
+* Russian: `ru`
+* Dutch: `nl`
+
+Public URLs use locale prefixes.
+
+---
+
+# 1. First audit the current rendering architecture
+
+Before changing anything, verify how the React + Vite + Express app currently delivers public pages.
+
+This is important:
+
+For SEO-critical public routes, `<title>`, meta description, canonical URL, hreflang tags and Open Graph metadata should be present in the **initial HTML response whenever reasonably possible**, rather than depending entirely on client-side JavaScript execution.
+
+If the current Vite SPA does not provide that, implement the **smallest reliable SEO-compatible solution** using the existing Express/Vite architecture.
+
+Possible approaches include server-side HTML metadata injection or prerendering.
+
+Do NOT migrate the project to Next.js or another framework unless absolutely necessary.
+
+Do not rewrite the application architecture merely for SEO.
+
+Before implementation, briefly tell me:
+
+1. how SEO metadata is currently rendered;
+2. what approach you will use;
+3. why it is appropriate for this project.
+
+---
+
+# 2. SEO metadata from the CMS
+
+For fairy tales and plays, use the CMS translation fields:
+
+* SEO title
+* SEO description
+
+If they are empty, generate sensible fallbacks from existing content:
+
+For fairy tales:
+
+* title → work title + author/site name
+* description → blurb
+
+For plays:
+
+* title → play title + author/site name
+* description → logline or synopsis excerpt
+
+For About and other static public pages, use appropriate locale-specific metadata.
+
+Do not generate fake factual claims.
+
+---
+
+# 3. Page titles
+
+Every indexable page should have a unique localized `<title>`.
+
+Examples of the intended logic:
+
+Home:
+
+`The Storyteller's Stage — Plays & Fairy Tales by [Author]`
+
+Fairy Tales listing:
+
+`Fairy Tales — [Author]`
+
+Individual tale:
+
+`[Fairy Tale Title] — [Author]`
+
+Plays listing:
+
+`Plays — [Author]`
+
+Individual play:
+
+`[Play Title] — [Author]`
+
+About:
+
+`About [Author]`
+
+These are examples of structure, not final copy.
+
+Use the correct localized wording in:
+
+* EN
+* UK
+* RU
+* NL
+
+Do not translate proper names unless the CMS contains a localized version.
+
+---
+
+# 4. Canonical URLs
+
+Add a correct canonical URL to every indexable public page.
+
+Examples:
+
+`https://DOMAIN/en/fairy-tales/example-slug`
+
+`https://DOMAIN/uk/fairy-tales/example-slug`
+
+Each language version should generally canonicalize to **itself**, not to the English version.
+
+Do not canonicalize different legitimate translations into one language.
+
+Use the production domain from environment/configuration rather than hard-coding a temporary Replit development URL.
+
+If a production base URL environment variable is needed, create and document it clearly, for example:
+
+`PUBLIC_SITE_URL`
+
+---
+
+# 5. hreflang
+
+Implement proper multilingual `hreflang` relationships.
+
+Supported language codes:
+
+* `en`
+* `uk`
+* `ru`
+* `nl`
+
+For a work that exists in several published languages, each translation page should reference all other **published** translations of that same work.
+
+Example:
+
+If one fairy tale exists in EN, UK and RU but not NL:
+
+EN page should contain alternates for:
+
+* en
+* uk
+* ru
+
+Do NOT output an `nl` hreflang for a translation that does not exist or is not published.
+
+Do the same for plays.
+
+For listing pages and static pages, include all available locale versions.
+
+Add `x-default` only where logically appropriate.
+
+If `/` is a neutral language-selection/gateway route, use it as `x-default`.
+
+If `/` simply redirects to the default English site, explain the chosen behavior and implement a sensible `x-default` strategy.
+
+---
+
+# 6. Sitemap
+
+Create a production sitemap.
+
+Prefer:
+
+`/sitemap.xml`
+
+It must contain only public, indexable URLs.
+
+Include:
+
+* localized home pages
+* Fairy Tales listing pages
+* published fairy-tale translations
+* Plays listing pages
+* published play translations
+* published About pages
+* other genuinely public content pages
+
+Do NOT include:
+
+* `/admin`
+* API endpoints
+* previews
+* drafts
+* unpublished translations
+* authentication routes
+
+The sitemap must reflect database content dynamically or be reliably regenerated when content changes.
+
+Do not require manual editing whenever the author publishes a new work.
+
+Where appropriate, include `lastmod` using actual content update timestamps.
+
+Do not invent modification dates.
+
+---
+
+# 7. robots.txt
+
+Add:
+
+`/robots.txt`
+
+Allow normal crawling of the public website.
+
+Explicitly prevent crawling of areas such as:
+
+* `/admin`
+* preview routes if any
+* other private/internal paths where appropriate
+
+Reference the sitemap.
+
+Do not accidentally block public CSS, JavaScript or images needed to render the site.
+
+---
+
+# 8. Drafts and previews
+
+Admin preview content must never become indexable.
+
+Ensure preview pages have appropriate protection, including:
+
+`noindex, nofollow`
+
+where relevant.
+
+Draft content must remain unavailable from the public content APIs as already implemented.
+
+Do not expose draft metadata to search engines.
+
+---
+
+# 9. Open Graph metadata
+
+Add localized Open Graph metadata for shareable public pages.
+
+At minimum:
+
+* `og:title`
+* `og:description`
+* `og:url`
+* `og:type`
+* `og:locale`
+* `og:site_name`
+
+When an appropriate image exists:
+
+* `og:image`
+
+For translated pages, include appropriate alternate locales where useful.
+
+Use valid locale representations for Open Graph.
+
+Do not use placeholder/demo images as permanent social preview images unless clearly intended.
+
+---
+
+# 10. Twitter / generic social cards
+
+Add sensible social card metadata compatible with major platforms.
+
+At minimum:
+
+* title
+* description
+* image where available
+* large-image card where appropriate
+
+Do not create social-media accounts or integrations.
+
+This phase only concerns metadata used when URLs are shared.
+
+---
+
+# 11. Images
+
+For public content images:
+
+* provide meaningful localized `alt` text where the CMS/content supports it;
+* decorative icons should not create meaningless SEO noise;
+* preserve existing visual design.
+
+If the current CMS lacks image alt-text fields and adding them is a small, clean schema extension, add an optional localized alt-text field.
+
+Do not build a new media-management system.
+
+---
+
+# 12. Structured data / JSON-LD
+
+Add useful Schema.org structured data conservatively.
+
+Use only valid schema types.
+
+At minimum consider:
+
+### Site-level
+
+* `WebSite`
+* `Person` for the author
+
+### Content pages
+
+Use an appropriate valid `CreativeWork`-family representation for fairy tales and plays.
+
+Where appropriate include fields such as:
+
+* name
+* author
+* inLanguage
+* description
+* url
+* image
+* datePublished / dateModified only when real values exist
+* genre where available
+
+Add `BreadcrumbList` where it accurately represents navigation.
+
+Do NOT invent:
+
+* awards
+* publishers
+* ratings
+* reviews
+* production histories
+* dates
+* organizations
+
+Structured data must represent actual CMS content only.
+
+---
+
+# 13. Language attributes
+
+Ensure the HTML document has the correct language attribute for each localized page:
+
+Examples:
+
+`<html lang="en">`
+
+`<html lang="uk">`
+
+`<html lang="ru">`
+
+`<html lang="nl">`
+
+Do not leave all languages marked as English.
+
+---
+
+# 14. HTTP behavior
+
+Verify:
+
+* valid public page → 200
+* nonexistent work → proper 404 behavior
+* unpublished work → should not return an indexable public page
+* malformed locale → sensible redirect or 404
+* `/` → intentional language/default behavior
+
+Avoid returning HTTP 200 with a generic “not found” React page for genuinely nonexistent public content if the architecture can reasonably return a proper 404.
+
+---
+
+# 15. Performance basics
+
+Do a lightweight SEO-oriented performance review without redesigning the site.
+
+Check especially:
+
+* oversized images
+* lazy loading for below-the-fold imagery
+* unnecessary blocking resources
+* font loading behavior
+* layout shifts
+
+Do not chase perfect Lighthouse scores or significantly alter the visual experience.
+
+Only make low-risk improvements.
+
+---
+
+# 16. Do NOT implement yet
+
+Do not implement:
+
+* contact email delivery
+* Request Full Script workflow
+* newsletter
+* analytics
+* Google Search Console integration
+* advertising pixels
+* cookie banners unless actually required by something already installed
+* AI-generated SEO text
+* automatic translation
+* backlinks or outreach
+* external SEO SaaS products
+
+Those are separate tasks.
+
+---
+
+# 17. Verification
+
+After implementation, test at least these scenarios:
+
+1. Open an EN fairy tale and inspect the initial HTML response.
+
+   * localized title is present
+   * description is present
+   * canonical is present
+   * hreflang is present
+
+2. Open the RU translation of the same tale.
+
+   * RU metadata is used
+   * canonical points to the RU page
+   * it is not canonicalized to English
+
+3. A tale published only in RU:
+
+   * appears in the sitemap only as RU
+   * no fake EN / UK / NL hreflang URLs are generated
+
+4. A draft translation:
+
+   * does not appear in sitemap
+   * cannot be indexed through public routes
+
+5. `/admin`:
+
+   * excluded from indexing
+
+6. Preview:
+
+   * noindex
+
+7. `/sitemap.xml`:
+
+   * valid XML
+   * includes database-driven published works
+
+8. `/robots.txt`:
+
+   * valid
+   * references sitemap
+
+9. A nonexistent slug:
+
+   * behaves as a genuine not-found page
+
+10. HTML `lang` is correct for all four locales.
+
+11. Open Graph metadata changes correctly between different works and languages.
+
+12. TypeScript/build checks remain clean.
+
+---
+
+# 18. Completion report
+
+When finished, STOP.
+
+Report:
+
+1. the SEO rendering approach you used;
+2. which files/components/routes were changed;
+3. whether any database fields were added;
+4. whether I need to set a new environment variable such as `PUBLIC_SITE_URL`;
+5. sitemap URL;
+6. robots.txt URL;
+7. one example of the generated canonical + hreflang set;
+8. one example of generated JSON-LD;
+9. test results;
+10. anything that still requires the final production domain.
+
+Do not automatically start contact-form work or any other phase.

@@ -76,6 +76,7 @@ export default function AdminPlayEdit() {
           excerpt: t?.excerpt || '',
           stagingNotes: t?.stagingNotes || '',
           productionInfo: t?.productionInfo || '',
+          coverImageAlt: (t as any)?.coverImageAlt || '',
           status: t?.status || 'missing'
         };
       });
@@ -128,7 +129,8 @@ export default function AdminPlayEdit() {
         synopsis: t.synopsis || null,
         excerpt: t.excerpt || null,
         stagingNotes: t.stagingNotes || null,
-        productionInfo: t.productionInfo || null
+        productionInfo: t.productionInfo || null,
+        coverImageAlt: t.coverImageAlt || null
       }
     }, {
       onSuccess: () => {
@@ -342,6 +344,18 @@ export default function AdminPlayEdit() {
                 <div>
                   <label className="block text-sm font-medium text-stage-dark mb-2">Staging Notes (Optional)</label>
                   <TiptapEditor value={translations[activeTab]?.stagingNotes || ''} onChange={html => setTranslations(p => ({ ...p, [activeTab]: { ...p[activeTab], stagingNotes: html } }))} />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-stage-dark mb-2">Cover Image Alt Text <span className="text-stage-dark/40 font-normal">(accessibility & SEO)</span></label>
+                  <input
+                    type="text"
+                    value={translations[activeTab]?.coverImageAlt || ''}
+                    onChange={e => setTranslations(p => ({ ...p, [activeTab]: { ...p[activeTab], coverImageAlt: e.target.value } }))}
+                    className="w-full px-4 py-3 bg-white border border-[#DCD6CC] rounded-lg focus:outline-none focus:ring-2 focus:ring-stage-pink/50"
+                    placeholder="Describe the cover image for screen readers and search engines…"
+                    maxLength={300}
+                  />
                 </div>
               </div>
             </div>

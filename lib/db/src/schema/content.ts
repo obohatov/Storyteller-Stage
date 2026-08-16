@@ -44,6 +44,8 @@ export const fairyTaleTranslationsTable = pgTable(
     body: text("body"), // HTML from Tiptap
     seoTitle: text("seo_title"),
     seoDescription: text("seo_description"),
+    /** Localized alt text for the cover image (for accessibility and SEO) */
+    coverImageAlt: text("cover_image_alt"),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
@@ -124,6 +126,8 @@ export const playTranslationsTable = pgTable(
     productionInfo: text("production_info"),
     seoTitle: text("seo_title"),
     seoDescription: text("seo_description"),
+    /** Localized alt text for the cover image */
+    coverImageAlt: text("cover_image_alt"),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
@@ -161,6 +165,8 @@ export const aboutTranslationsTable = pgTable("about_translations", {
   locale: text("locale").notNull().unique(), // en | uk | ru | nl
   body: text("body"), // HTML from Tiptap
   authorPhotoPath: text("author_photo_path"),
+  /** Localized alt text for the author photo */
+  authorPhotoAlt: text("author_photo_alt"),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow()

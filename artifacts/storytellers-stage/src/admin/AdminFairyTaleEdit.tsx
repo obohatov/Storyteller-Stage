@@ -72,6 +72,7 @@ export default function AdminFairyTaleEdit() {
           body: t?.body || '',
           seoTitle: t?.seoTitle || '',
           seoDescription: t?.seoDescription || '',
+          coverImageAlt: (t as any)?.coverImageAlt || '',
           status: t?.status || 'missing'
         };
       });
@@ -120,7 +121,8 @@ export default function AdminFairyTaleEdit() {
         blurb: t.blurb || null,
         body: t.body || null,
         seoTitle: t.seoTitle || null,
-        seoDescription: t.seoDescription || null
+        seoDescription: t.seoDescription || null,
+        coverImageAlt: t.coverImageAlt || null
       }
     }, {
       onSuccess: () => {
@@ -339,6 +341,18 @@ export default function AdminFairyTaleEdit() {
                   <TiptapEditor 
                     value={translations[activeTab]?.body || ''}
                     onChange={html => setTranslations(p => ({ ...p, [activeTab]: { ...p[activeTab], body: html } }))}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-stage-dark mb-2">Cover Image Alt Text <span className="text-stage-dark/40 font-normal">(accessibility & SEO)</span></label>
+                  <input
+                    type="text"
+                    value={translations[activeTab]?.coverImageAlt || ''}
+                    onChange={e => setTranslations(p => ({ ...p, [activeTab]: { ...p[activeTab], coverImageAlt: e.target.value } }))}
+                    className="w-full px-4 py-3 bg-white border border-[#DCD6CC] rounded-lg focus:outline-none focus:ring-2 focus:ring-stage-yellow/50"
+                    placeholder="Describe the image for screen readers and search engines…"
+                    maxLength={300}
                   />
                 </div>
               </div>

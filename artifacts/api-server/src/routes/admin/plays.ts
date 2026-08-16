@@ -186,13 +186,14 @@ router.put(
       const productionInfo = clampString(body.productionInfo, "productionInfo", 10_000);
       const seoTitle = clampString(body.seoTitle, "seoTitle", 120);
       const seoDescription = clampString(body.seoDescription, "seoDescription", 320);
+      const coverImageAlt = clampString(body.coverImageAlt, "coverImageAlt", 300);
 
       await db
         .insert(playTranslationsTable)
-        .values({ playId: id, locale, title, logline, synopsis, excerpt, stagingNotes, productionInfo, seoTitle, seoDescription })
+        .values({ playId: id, locale, title, logline, synopsis, excerpt, stagingNotes, productionInfo, seoTitle, seoDescription, coverImageAlt })
         .onConflictDoUpdate({
           target: [playTranslationsTable.playId, playTranslationsTable.locale],
-          set: { title, logline, synopsis, excerpt, stagingNotes, productionInfo, seoTitle, seoDescription, updatedAt: new Date() },
+          set: { title, logline, synopsis, excerpt, stagingNotes, productionInfo, seoTitle, seoDescription, coverImageAlt, updatedAt: new Date() },
         });
 
       const detail = await getPlayWithTranslations(id);
