@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "The Storyteller's Stage"
+description = "A multilingual portfolio for a playwright and fairy tale author, featuring an animated split-pane layout showcasing theatrical plays and fairy tales in English, Ukrainian, and Dutch."
+version = "1.0.0"
+id = "artifacts/storytellers-stage"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24934
+
+[services.development]
+run = "pnpm --filter @workspace/storytellers-stage run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/storytellers-stage", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/storytellers-stage/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24934"
+BASE_PATH = "/"
