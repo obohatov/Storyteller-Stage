@@ -1,10 +1,10 @@
 /**
- * Email notification service (Resend).
+ * Email notification service (Resend REST API).
  *
  * Gracefully optional — if RESEND_API_KEY is not set, a warning is logged
  * and the function returns { ok: false, reason: 'not_configured' }.
- * The submission is already safely stored in the database by the time this
- * is called, so a missing API key must never fail the user request.
+ * The DB insert always happens first, so a missing key never fails the
+ * user-facing request.
  */
 
 const RESEND_API_URL = "https://api.resend.com/emails";
@@ -27,7 +27,7 @@ async function sendEmail(opts: {
 
   const from =
     process.env.CONTACT_SENDER_EMAIL ||
-    "Stage Notifications <noreply@bohatova.art>";
+    "Stage Notifications <onboarding@resend.dev>";
 
   try {
     const res = await fetch(RESEND_API_URL, {
@@ -41,7 +41,7 @@ async function sendEmail(opts: {
 
     if (!res.ok) {
       const body = await res.text().catch(() => "(unreadable)");
-      console.error(`[email] Resend API error ${res.status}: ${body}`);
+      console.error(`[email] Resend error ${res.status}: ${body}`);
       return { ok: false, reason: "api_error" };
     }
     return { ok: true };

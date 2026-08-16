@@ -23,3 +23,4 @@ timeoutMs = 20000
 
 [userenv.shared]
 PUBLIC_SITE_URL = "https://bohatova.art"
+CONTACT_RECIPIENT_EMAIL = "sonia.bohatova@gmail.com "
