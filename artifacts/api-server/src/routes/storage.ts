@@ -5,6 +5,7 @@ import {
 } from '@workspace/api-zod';
 import { Router, type IRouter, type Request, type Response } from 'express';
 
+import { isAdminUser } from '../lib/adminGuard';
 import { ObjectPermission } from '../lib/objectAcl';
 import {
   ObjectNotFoundError,
@@ -14,33 +15,32 @@ import {
 const router: IRouter = Router();
 const objectStorageService = new ObjectStorageService();
 
-function hasAuthenticatedSession(
-  req: Request,
-): req is Request & { isAuthenticated: () => boolean } {
-  if (
-    !('isAuthenticated' in req) ||
-    typeof req.isAuthenticated !== 'function'
-  ) {
-    return false;
-  }
-
-  return req.isAuthenticated();
-}
+/** Only these MIME types are accepted for uploads. */
+const ALLOWED_MIME_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+]);
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 /**
  * POST /storage/uploads/request-url
  *
  * Request a presigned URL for file upload.
- * The client sends JSON metadata (name, size, contentType) — NOT the file.
- * Then uploads the file directly to the returned presigned URL.
- * Requires auth middleware so public callers cannot mint write-capable URLs.
+ * Requires the caller to be an authenticated, authorized administrator.
  */
 router.post(
   '/storage/uploads/request-url',
   async (req: Request, res: Response) => {
-    if (!hasAuthenticatedSession(req)) {
+    // Must be a verified admin (not just any authenticated user)
+    if (!req.isAuthenticated()) {
       res.status(401).json({ error: 'Unauthorized' });
-
+      return;
+    }
+    const userId = (req.user as { id: string } | undefined)?.id;
+    if (!userId || !isAdminUser(userId)) {
+      res.status(403).json({ error: 'Forbidden: not an authorized administrator' });
       return;
     }
 
@@ -50,12 +50,27 @@ router.post(
       return;
     }
 
-    try {
-      const { name, size, contentType } = parsed.data;
+    const { name, size, contentType } = parsed.data;
 
+    // Validate MIME type
+    if (!ALLOWED_MIME_TYPES.has(contentType)) {
+      res.status(400).json({
+        error: 'Unsupported file type. Only JPEG, PNG, GIF, and WEBP images are allowed.',
+      });
+      return;
+    }
+
+    // Validate file size
+    if (typeof size === 'number' && size > MAX_FILE_SIZE_BYTES) {
+      res.status(400).json({
+        error: 'File too large. Maximum allowed size is 10 MB.',
+      });
+      return;
+    }
+
+    try {
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-      const objectPath =
-        objectStorageService.normalizeObjectEntityPath(uploadURL);
+      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
 
       res.json(
         RequestUploadUrlResponse.parse({
@@ -75,8 +90,7 @@ router.post(
  * GET /storage/public-objects/*
  *
  * Serve public assets from PUBLIC_OBJECT_SEARCH_PATHS.
- * These are unconditionally public — no authentication or ACL checks.
- * IMPORTANT: Always provide this endpoint when object storage is set up.
+ * Unconditionally public — no authentication or ACL checks.
  */
 router.get(
   '/storage/public-objects/*filePath',
@@ -105,7 +119,7 @@ router.get(
       }
     } catch (error) {
       req.log.error({ err: error }, 'Error serving public object');
-      res.status(500).json({ error: 'Failed to serve public object' });
+      res.status(500).json({ error: 'Failed to serve file' });
     }
   },
 );
@@ -113,55 +127,51 @@ router.get(
 /**
  * GET /storage/objects/*
  *
- * Serve object entities from PRIVATE_OBJECT_DIR.
- * These are served from a separate path from /public-objects and can optionally
- * be protected with authentication or ACL checks based on the use case.
+ * Serve private assets — requires authentication.
  */
-router.get('/storage/objects/*path', async (req: Request, res: Response) => {
-  try {
-    const raw = req.params.path;
-    const wildcardPath = Array.isArray(raw) ? raw.join('/') : raw;
-    const objectPath = `/objects/${wildcardPath}`;
-    const objectFile =
-      await objectStorageService.getObjectEntityFile(objectPath);
-
-    // --- Protected route example (uncomment when using replit-auth) ---
-    // if (!req.isAuthenticated()) {
-    //   res.status(401).json({ error: "Unauthorized" });
-    //   return;
-    // }
-    // const canAccess = await objectStorageService.canAccessObjectEntity({
-    //   userId: req.user.id,
-    //   objectFile,
-    //   requestedPermission: ObjectPermission.READ,
-    // });
-    // if (!canAccess) {
-    //   res.status(403).json({ error: "Forbidden" });
-    //   return;
-    // }
-
-    const response = await objectStorageService.downloadObject(objectFile);
-
-    res.status(response.status);
-    response.headers.forEach((value, key) => res.setHeader(key, value));
-
-    if (response.body) {
-      const nodeStream = Readable.fromWeb(
-        response.body as ReadableStream<Uint8Array>,
-      );
-      nodeStream.pipe(res);
-    } else {
-      res.end();
-    }
-  } catch (error) {
-    if (error instanceof ObjectNotFoundError) {
-      req.log.warn({ err: error }, 'Object not found');
-      res.status(404).json({ error: 'Object not found' });
+router.get(
+  '/storage/objects/*objectPath',
+  async (req: Request, res: Response) => {
+    if (!req.isAuthenticated()) {
+      res.status(401).json({ error: 'Unauthorized' });
       return;
     }
-    req.log.error({ err: error }, 'Error serving object');
-    res.status(500).json({ error: 'Failed to serve object' });
-  }
-});
+
+    try {
+      const raw = req.params.objectPath;
+      const objectPath = Array.isArray(raw) ? raw.join('/') : raw;
+
+      const hasPermission = await objectStorageService.checkObjectPermission(
+        objectPath,
+        ObjectPermission.READ,
+      );
+      if (!hasPermission) {
+        res.status(403).json({ error: 'Access denied' });
+        return;
+      }
+
+      const response = await objectStorageService.downloadObject(objectPath);
+
+      res.status(response.status);
+      response.headers.forEach((value, key) => res.setHeader(key, value));
+
+      if (response.body) {
+        const nodeStream = Readable.fromWeb(
+          response.body as ReadableStream<Uint8Array>,
+        );
+        nodeStream.pipe(res);
+      } else {
+        res.end();
+      }
+    } catch (error) {
+      if (error instanceof ObjectNotFoundError) {
+        res.status(404).json({ error: 'File not found' });
+        return;
+      }
+      req.log.error({ err: error }, 'Error serving private object');
+      res.status(500).json({ error: 'Failed to serve file' });
+    }
+  },
+);
 
 export default router;

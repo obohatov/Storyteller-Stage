@@ -8,23 +8,28 @@ import {
   playTranslationsTable,
   aboutTranslationsTable,
 } from "@workspace/db";
+import { isAdminUser } from "../lib/adminGuard";
 
 const router: IRouter = Router();
 
 const LOCALES = ["en", "uk", "ru", "nl"];
 
+/**
+ * Preview mode: only admins can see draft content via the public API.
+ * Any authenticated non-admin user still gets the published-only view.
+ */
 function isPreviewMode(req: Request): boolean {
-  return req.isAuthenticated() && req.query.preview === "true";
+  if (req.query.preview !== "true") return false;
+  if (!req.isAuthenticated()) return false;
+  const userId = (req.user as { id: string } | undefined)?.id;
+  return !!(userId && isAdminUser(userId));
 }
 
 // ─── Fairy Tales ──────────────────────────────────────────────────────────────
 
 router.get("/public/fairy-tales", async (req: Request, res: Response): Promise<void> => {
   const locale = typeof req.query.locale === "string" ? req.query.locale : "";
-  if (!LOCALES.includes(locale)) {
-    res.status(400).json({ error: "Invalid locale" });
-    return;
-  }
+  if (!LOCALES.includes(locale)) { res.status(400).json({ error: "Invalid locale" }); return; }
 
   const statuses = isPreviewMode(req) ? ["published", "draft"] : ["published"];
 
@@ -56,22 +61,15 @@ router.get("/public/fairy-tales", async (req: Request, res: Response): Promise<v
 });
 
 router.get("/public/fairy-tales/:slug", async (req: Request, res: Response): Promise<void> => {
-  const slug = Array.isArray(req.params.slug) ? req.params.slug[0] : req.params.slug;
+  const slug = String(req.params.slug);
   const locale = typeof req.query.locale === "string" ? req.query.locale : "";
-  if (!LOCALES.includes(locale)) {
-    res.status(400).json({ error: "Invalid locale" });
-    return;
-  }
+  if (!LOCALES.includes(locale)) { res.status(400).json({ error: "Invalid locale" }); return; }
 
   const statuses = isPreviewMode(req) ? ["published", "draft"] : ["published"];
 
   const [tale] = await db.select().from(fairyTalesTable).where(eq(fairyTalesTable.slug, slug));
-  if (!tale) {
-    res.status(404).json({ available: false, reason: "Not found" });
-    return;
-  }
+  if (!tale) { res.status(404).json({ available: false, reason: "Not found" }); return; }
 
-  // Get the requested locale translation
   const [translation] = await db
     .select()
     .from(fairyTaleTranslationsTable)
@@ -82,13 +80,9 @@ router.get("/public/fairy-tales/:slug", async (req: Request, res: Response): Pro
         inArray(fairyTaleTranslationsTable.status, statuses),
       ),
     );
+  if (!translation) { res.status(404).json({ available: false, reason: "Not available in this language" }); return; }
 
-  if (!translation) {
-    res.status(404).json({ available: false, reason: "Not available in this language" });
-    return;
-  }
-
-  // Get list of published locales for language-switch awareness
+  // availableLocales uses the same status filter so preview still sees only draft/published
   const publishedTranslations = await db
     .select({ locale: fairyTaleTranslationsTable.locale })
     .from(fairyTaleTranslationsTable)
@@ -119,10 +113,7 @@ router.get("/public/fairy-tales/:slug", async (req: Request, res: Response): Pro
 
 router.get("/public/plays", async (req: Request, res: Response): Promise<void> => {
   const locale = typeof req.query.locale === "string" ? req.query.locale : "";
-  if (!LOCALES.includes(locale)) {
-    res.status(400).json({ error: "Invalid locale" });
-    return;
-  }
+  if (!LOCALES.includes(locale)) { res.status(400).json({ error: "Invalid locale" }); return; }
 
   const statuses = isPreviewMode(req) ? ["published", "draft"] : ["published"];
 
@@ -155,20 +146,14 @@ router.get("/public/plays", async (req: Request, res: Response): Promise<void> =
 });
 
 router.get("/public/plays/:slug", async (req: Request, res: Response): Promise<void> => {
-  const slug = Array.isArray(req.params.slug) ? req.params.slug[0] : req.params.slug;
+  const slug = String(req.params.slug);
   const locale = typeof req.query.locale === "string" ? req.query.locale : "";
-  if (!LOCALES.includes(locale)) {
-    res.status(400).json({ error: "Invalid locale" });
-    return;
-  }
+  if (!LOCALES.includes(locale)) { res.status(400).json({ error: "Invalid locale" }); return; }
 
   const statuses = isPreviewMode(req) ? ["published", "draft"] : ["published"];
 
   const [play] = await db.select().from(playsTable).where(eq(playsTable.slug, slug));
-  if (!play) {
-    res.status(404).json({ available: false, reason: "Not found" });
-    return;
-  }
+  if (!play) { res.status(404).json({ available: false, reason: "Not found" }); return; }
 
   const [translation] = await db
     .select()
@@ -180,16 +165,9 @@ router.get("/public/plays/:slug", async (req: Request, res: Response): Promise<v
         inArray(playTranslationsTable.status, statuses),
       ),
     );
+  if (!translation) { res.status(404).json({ available: false, reason: "Not available in this language" }); return; }
 
-  if (!translation) {
-    res.status(404).json({ available: false, reason: "Not available in this language" });
-    return;
-  }
-
-  // Hide full body when script_availability is not 'public'
-  const synopsisToReturn =
-    play.scriptAvailability === "public" ? translation.synopsis : null;
-  const excerptToReturn = translation.excerpt;
+  const synopsisToReturn = play.scriptAvailability === "public" ? translation.synopsis : null;
 
   const publishedTranslations = await db
     .select({ locale: playTranslationsTable.locale })
@@ -207,7 +185,7 @@ router.get("/public/plays/:slug", async (req: Request, res: Response): Promise<v
     title: translation.title,
     logline: translation.logline,
     synopsis: synopsisToReturn,
-    excerpt: excerptToReturn,
+    excerpt: translation.excerpt,
     locale,
     genre: play.genre,
     targetAudience: play.targetAudience,
@@ -228,21 +206,15 @@ router.get("/public/plays/:slug", async (req: Request, res: Response): Promise<v
 // ─── About ────────────────────────────────────────────────────────────────────
 
 router.get("/public/about/:locale", async (req: Request, res: Response): Promise<void> => {
-  const locale = Array.isArray(req.params.locale) ? req.params.locale[0] : req.params.locale;
-  if (!LOCALES.includes(locale)) {
-    res.status(404).json({ available: false, reason: "Invalid locale" });
-    return;
-  }
+  const locale = String(req.params.locale);
+  if (!LOCALES.includes(locale)) { res.status(404).json({ available: false, reason: "Invalid locale" }); return; }
 
   const [row] = await db
     .select()
     .from(aboutTranslationsTable)
     .where(eq(aboutTranslationsTable.locale, locale));
 
-  if (!row) {
-    res.status(404).json({ available: false, reason: "Not available in this language" });
-    return;
-  }
+  if (!row) { res.status(404).json({ available: false, reason: "Not available in this language" }); return; }
 
   res.json({
     available: true,

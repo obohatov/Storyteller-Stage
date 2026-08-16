@@ -1,0 +1,196 @@
+Before adding SEO, contact-form delivery, or any new product features, perform a focused **security and data-integrity hardening pass** on the CMS that was just implemented.
+
+Do not redesign the public website or the CMS.
+
+Do not add new user-facing features.
+
+## 1. Admin authorization — critical
+
+Review the current Replit Auth implementation.
+
+Authentication alone is NOT sufficient.
+
+The `/admin` interface and every `/admin/*` API endpoint must only be accessible to explicitly authorized site administrators.
+
+Implement a simple admin allowlist using a secure server-side mechanism such as environment variables / secrets.
+
+Do not hard-code administrator identities into frontend code.
+
+Expected behavior:
+
+* unauthenticated user → 401
+* authenticated Replit user who is NOT an approved admin → 403
+* approved admin → access granted
+
+The frontend should show an appropriate “You do not have permission to access this CMS” state for authenticated non-admin users.
+
+Do not create public registration or CMS role management.
+
+---
+
+## 2. Draft-content isolation
+
+Verify that unpublished content cannot be retrieved from any public API endpoint.
+
+Public APIs must return only translations that are explicitly published.
+
+Test all of these cases:
+
+* unpublished fairy tale
+* unpublished play
+* published work with an unpublished translation
+* unpublished About translation
+
+Draft preview must remain available only to authorized admins.
+
+A person who guesses a slug or API URL must not be able to retrieve draft text.
+
+---
+
+## 3. Rich-text safety
+
+Review how Tiptap content is stored and rendered.
+
+Ensure user-generated rich-text content is safely sanitized before being rendered publicly.
+
+Prevent script injection / XSS.
+
+Allow only the formatting features supported by the editor, such as:
+
+* paragraphs
+* headings
+* bold
+* italic
+* blockquotes
+* links
+* horizontal / scene breaks
+
+Unsafe HTML, scripts, inline event handlers and dangerous URLs must not render.
+
+---
+
+## 4. File upload security
+
+Review the existing GCS image upload implementation.
+
+Add server-side validation for:
+
+* allowed MIME types
+* reasonable maximum file size
+* safe generated filenames / object keys
+* authorization before upload
+
+Images must not be able to overwrite arbitrary objects.
+
+Do not allow executable files or arbitrary HTML uploads.
+
+Confirm that storage credentials and bucket configuration are server-side only and are not exposed in frontend bundles.
+
+Do not replace GCS if the current implementation is working correctly; simply verify and secure it.
+
+---
+
+## 5. Slug integrity
+
+Verify:
+
+* fairy-tale slugs are unique within fairy tales
+* play slugs are unique within plays
+* duplicate slug creation returns a clear validation error
+* editing a published title does not silently change its slug
+* malformed or unsafe slug values are rejected or normalized
+
+Do not break existing URLs.
+
+---
+
+## 6. Input validation
+
+Add or verify server-side validation for all CMS writes.
+
+Do not rely only on frontend validation.
+
+Examples:
+
+* supported locales are only `en`, `uk`, `ru`, `nl`
+* reasonable maximum lengths for titles, blurbs, loglines and SEO fields
+* valid enum values for publication status and script availability
+* numeric fields such as duration, reading time and cast size cannot contain invalid values
+
+Return useful validation errors to the CMS UI.
+
+---
+
+## 7. Destructive actions
+
+Verify that Delete requires explicit confirmation.
+
+Prefer archive/unpublish for normal content management where practical.
+
+Deleting a work must correctly handle associated translation records and should not leave orphan database records.
+
+Do not add a complex recycle-bin system.
+
+---
+
+## 8. Language integrity
+
+Verify the multilingual model still behaves correctly:
+
+One work = one base record + separate translations.
+
+Test:
+
+* create RU only → publish RU
+* add EN later
+* unpublish RU without affecting EN
+* switch language on a detail page
+* missing translation does not fall back silently to another language
+
+Never show content in the wrong language simply because another translation exists.
+
+---
+
+## 9. Database integrity
+
+Review database constraints and relationships.
+
+Ensure appropriate:
+
+* foreign keys
+* unique constraints
+* cascading behavior where intentional
+* indexes for frequently queried slugs / locale / publication state
+
+Do not over-engineer the schema.
+
+---
+
+## 10. Final verification
+
+Run the existing TypeScript checks and application tests.
+
+Then manually verify these scenarios:
+
+1. Anonymous visitor cannot access `/admin`.
+2. Logged-in but unauthorized Replit user cannot access `/admin`.
+3. Approved administrator can access CMS.
+4. Draft fairy tale is invisible through public pages and public API.
+5. Published RU-only tale appears only in Russian.
+6. Adding EN later works without creating a duplicate work.
+7. Malicious HTML entered into the rich-text editor cannot execute JavaScript publicly.
+8. Invalid or oversized file upload is rejected.
+9. Duplicate slug is rejected cleanly.
+10. Existing public design and animations remain unchanged.
+
+After completing this hardening pass, stop.
+
+Report:
+
+* what security issues you found
+* what you changed
+* how admin authorization is configured
+* any secrets/environment variables I need to set
+* the manual test results
+
+Do not proceed to SEO or contact-form delivery yet.
