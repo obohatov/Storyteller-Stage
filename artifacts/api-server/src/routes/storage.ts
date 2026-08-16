@@ -128,6 +128,10 @@ router.get(
  * GET /storage/objects/*
  *
  * Serve private assets — requires authentication.
+ * Uses the actual ObjectStorageService API:
+ *   1. getObjectEntityFile()  — resolves the GCS File (throws ObjectNotFoundError if absent)
+ *   2. canAccessObjectEntity() — enforces ACL (owner / public visibility / rules)
+ *   3. downloadObject(File)   — streams the object with correct headers
  */
 router.get(
   '/storage/objects/*objectPath',
@@ -139,18 +143,28 @@ router.get(
 
     try {
       const raw = req.params.objectPath;
-      const objectPath = Array.isArray(raw) ? raw.join('/') : raw;
+      const rawSegment = Array.isArray(raw) ? raw.join('/') : raw;
 
-      const hasPermission = await objectStorageService.checkObjectPermission(
-        objectPath,
-        ObjectPermission.READ,
-      );
+      // getObjectEntityFile expects the path to start with /objects/
+      const objectPath = `/objects/${rawSegment}`;
+
+      // Resolve path → GCS File; throws ObjectNotFoundError when absent.
+      const objectFile = await objectStorageService.getObjectEntityFile(objectPath);
+
+      // Enforce ACL — owner, public-visibility, or explicit ACL rules.
+      const userId = (req.user as { id: string } | undefined)?.id;
+      const hasPermission = await objectStorageService.canAccessObjectEntity({
+        userId,
+        objectFile,
+        requestedPermission: ObjectPermission.READ,
+      });
       if (!hasPermission) {
         res.status(403).json({ error: 'Access denied' });
         return;
       }
 
-      const response = await objectStorageService.downloadObject(objectPath);
+      // Stream the object with correct Content-Type / Cache-Control headers.
+      const response = await objectStorageService.downloadObject(objectFile);
 
       res.status(response.status);
       response.headers.forEach((value, key) => res.setHeader(key, value));

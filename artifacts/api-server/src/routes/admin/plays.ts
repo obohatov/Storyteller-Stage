@@ -80,8 +80,10 @@ router.post("/admin/plays", async (req: Request, res: Response): Promise<void> =
     const castSize = clampString(body.castSize, "castSize", 100);
     const coverImagePath = clampString(body.coverImagePath, "coverImagePath", 500);
     const stagingComplexity = clampString(body.stagingComplexity, "stagingComplexity", 200);
-    const productionHistory = clampString(body.productionHistory, "productionHistory", 5000);
-    const awards = clampString(body.awards, "awards", 5000);
+    const rawProductionHistory = clampString(body.productionHistory, "productionHistory", 5000);
+    const productionHistory = typeof rawProductionHistory === "string" ? sanitizeRichText(rawProductionHistory) : rawProductionHistory;
+    const rawAwards = clampString(body.awards, "awards", 5000);
+    const awards = typeof rawAwards === "string" ? sanitizeRichText(rawAwards) : rawAwards;
 
     const rawAvailability = typeof body.scriptAvailability === "string" ? body.scriptAvailability : "on_request";
     const scriptAvailability = SCRIPT_AVAILABILITY.includes(rawAvailability as typeof SCRIPT_AVAILABILITY[number])
@@ -134,8 +136,14 @@ router.patch("/admin/plays/:id", async (req: Request, res: Response): Promise<vo
     if (body.castSize !== undefined) updateData.castSize = clampString(body.castSize, "castSize", 100);
     if (body.coverImagePath !== undefined) updateData.coverImagePath = clampString(body.coverImagePath, "coverImagePath", 500);
     if (body.stagingComplexity !== undefined) updateData.stagingComplexity = clampString(body.stagingComplexity, "stagingComplexity", 200);
-    if (body.productionHistory !== undefined) updateData.productionHistory = clampString(body.productionHistory, "productionHistory", 5000);
-    if (body.awards !== undefined) updateData.awards = clampString(body.awards, "awards", 5000);
+    if (body.productionHistory !== undefined) {
+      const raw = clampString(body.productionHistory, "productionHistory", 5000);
+      updateData.productionHistory = typeof raw === "string" ? sanitizeRichText(raw) : raw;
+    }
+    if (body.awards !== undefined) {
+      const raw = clampString(body.awards, "awards", 5000);
+      updateData.awards = typeof raw === "string" ? sanitizeRichText(raw) : raw;
+    }
     if (typeof body.scriptAvailability === "string" && SCRIPT_AVAILABILITY.includes(body.scriptAvailability as typeof SCRIPT_AVAILABILITY[number])) {
       updateData.scriptAvailability = body.scriptAvailability;
     }
@@ -183,7 +191,8 @@ router.put(
       const excerpt = typeof rawExcerpt === "string" ? sanitizeRichText(rawExcerpt) : rawExcerpt;
       const rawStagingNotes = clampString(body.stagingNotes, "stagingNotes", 50_000);
       const stagingNotes = typeof rawStagingNotes === "string" ? sanitizeRichText(rawStagingNotes) : rawStagingNotes;
-      const productionInfo = clampString(body.productionInfo, "productionInfo", 10_000);
+      const rawProductionInfo = clampString(body.productionInfo, "productionInfo", 10_000);
+      const productionInfo = typeof rawProductionInfo === "string" ? sanitizeRichText(rawProductionInfo) : rawProductionInfo;
       const seoTitle = clampString(body.seoTitle, "seoTitle", 120);
       const seoDescription = clampString(body.seoDescription, "seoDescription", 320);
       const coverImageAlt = clampString(body.coverImageAlt, "coverImageAlt", 300);

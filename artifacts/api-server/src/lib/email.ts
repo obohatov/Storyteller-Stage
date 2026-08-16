@@ -39,7 +39,8 @@ async function sendEmail(opts: {
     html: opts.html,
   };
 
-  console.log(`[email] Sending: from="${from}" to="${opts.to}" reply_to="${opts.replyTo}" subject="${opts.subject}"`);
+  // Log operational context only — no PII (no addresses, names, or subjects).
+  console.log(`[email] Sending notification (type redacted for privacy)`);
 
   try {
     const res = await fetch(RESEND_API_URL, {
@@ -54,7 +55,8 @@ async function sendEmail(opts: {
     const responseBody = await res.text().catch(() => "(unreadable)");
 
     if (!res.ok) {
-      console.error(`[email] Resend error ${res.status}: ${responseBody}`);
+      // Log status code only — response body may contain PII from Resend.
+      console.error(`[email] Resend API error — HTTP ${res.status}`);
       return { ok: false, reason: "api_error" };
     }
 

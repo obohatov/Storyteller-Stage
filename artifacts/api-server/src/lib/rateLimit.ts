@@ -32,12 +32,11 @@ export function createRateLimiter(opts: {
     res: Response,
     next: NextFunction,
   ): void {
-    const ip =
-      (req.headers["x-forwarded-for"] as string | undefined)
-        ?.split(",")[0]
-        ?.trim() ??
-      req.socket?.remoteAddress ??
-      "unknown";
+    // req.ip is resolved by Express using the "trust proxy" setting on the app.
+    // With trust proxy = 1 (set in app.ts), Express reads the real client IP
+    // from the X-Forwarded-For entry added by Replit's proxy and ignores any
+    // client-supplied X-Forwarded-For values, preventing spoofing.
+    const ip = req.ip ?? req.socket?.remoteAddress ?? "unknown";
 
     const now = Date.now();
     const rec = store.get(ip);

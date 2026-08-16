@@ -1,0 +1,73 @@
+Perform a focused security remediation pass based on the completed security review.
+
+Fix ONLY these findings in this pass:
+
+H1 — CORS
+H2 — rate limiter IP handling
+H3 — broken private Object Storage route
+M1 — unsanitized play fields
+M6 — OIDC origin derived from forwarded headers
+L2 — PII in email logs
+
+Do not modify the visual frontend, public content, CMS UX, SEO, database content, Resend configuration, or other unrelated functionality.
+
+IMPORTANT:
+
+1. H1 / CORS
+Replace the current origin-reflection configuration with an explicit safe allowlist.
+Production must allow https://bohatova.art.
+Preserve only the origins genuinely required for Replit development/preview in development mode.
+Do not reintroduce wildcard/reflected origins with credentials.
+
+2. H2 / rate limiting
+Do NOT trust the first raw X-Forwarded-For value.
+Determine the correct Replit reverse-proxy configuration and configure Express trust proxy safely.
+Use Express's resolved client IP only after the proxy trust configuration is correct.
+Do not simply switch to a value that makes every production visitor appear to have the same proxy IP.
+Verify that a caller cannot bypass the limiter by changing X-Forwarded-For.
+
+3. H3 / Object Storage
+Fix the private object route using the ACTUAL existing ObjectStorageService API.
+Do not bypass or remove permission checks.
+Verify:
+- authorized access works;
+- unauthorized access is denied;
+- missing objects return an appropriate response;
+- the existing TypeScript errors caused by these incorrect method calls disappear.
+
+4. M1 / stored XSS hardening
+Apply the existing safe rich-text sanitization strategy to:
+- productionInfo
+- productionHistory
+- awards
+before storing/rendering them.
+Do not weaken the sanitizer.
+
+5. M6 / OIDC origin
+In production, use the already configured PUBLIC_SITE_URL as the trusted application origin rather than constructing security-sensitive callback URLs from untrusted request headers.
+Preserve development login functionality safely.
+
+6. L2 / PII logs
+Remove or redact visitor email addresses, recipient addresses, names contained in subjects, and other unnecessary PII from application email logs.
+Keep useful operational success/error logging without personal data.
+
+After implementation run:
+- production build
+- tsc --noEmit
+- authentication/admin access test
+- Contact submission test
+- Script Request test
+- rate-limit spoofing test
+- private object access test
+- CORS test from allowed and disallowed origins
+
+STOP after these fixes.
+
+Report:
+1. files changed;
+2. exact remediation for each finding;
+3. test results;
+4. whether tsc is now clean;
+5. any finding that could not be fixed safely without more information.
+
+Do NOT automatically fix Medium or Low findings not listed above.

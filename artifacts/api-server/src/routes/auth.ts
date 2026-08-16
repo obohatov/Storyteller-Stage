@@ -20,6 +20,15 @@ const OIDC_COOKIE_TTL = 10 * 60 * 1000;
 const router: IRouter = Router();
 
 function getOrigin(req: Request): string {
+  // In production use the explicitly configured site URL so the OIDC
+  // redirect_uri is never derived from untrusted request headers.
+  // PUBLIC_SITE_URL must be set in deployed environments.
+  if (process.env.PUBLIC_SITE_URL) {
+    return process.env.PUBLIC_SITE_URL.replace(/\/$/, '');
+  }
+  // Development fallback: construct from forwarded headers supplied by the
+  // Replit dev proxy.  Acceptable in dev because the OIDC provider is also
+  // Replit and the headers are set by the same trusted infrastructure.
   const proto = req.headers['x-forwarded-proto'] || 'https';
   const host =
     req.headers['x-forwarded-host'] || req.headers['host'] || 'localhost';
