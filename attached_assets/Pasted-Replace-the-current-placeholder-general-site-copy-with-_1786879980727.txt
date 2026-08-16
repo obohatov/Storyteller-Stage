@@ -1,0 +1,104 @@
+Replace the current placeholder/general site copy with the approved RU / UA / EN / NL content that I provide below.
+
+This is a **content-only update**.
+
+Do NOT redesign anything.
+
+Do NOT change:
+
+* layout
+* colors
+* typography
+* font sizes
+* spacing
+* animations
+* routing
+* CMS architecture
+* database schema
+* backend
+* SEO architecture
+* Contact workflow
+* Request Full Script workflow
+* authentication
+* image handling
+
+Use the existing CMS/content structure wherever possible.
+
+## Important content rules
+
+1. Preserve the approved site brand:
+
+**The Storyteller’s Stage**
+**by Sofia Bohatova**
+
+2. Public professional name:
+
+**Sofia Bohatova**
+
+3. Official alternate transliteration for SEO / structured data:
+
+**Sofiia Bohatova**
+
+Do not display `Sofiia Bohatova` prominently in normal page copy unless it is already required by the existing SEO implementation.
+
+4. Public contact email:
+
+**[contact@bohatova.art](mailto:contact@bohatova.art)**
+
+5. Sofia is from Ukraine and currently lives in Belgium.
+
+Do not add specific cities to her biography.
+
+6. Replace placeholder/demo biography and general descriptive copy.
+
+7. Do NOT change individual fairy-tale or play content yet, except for general section descriptions.
+
+8. Do not invent awards, productions, education, publishers, or other facts.
+
+9. Keep the existing visual homepage labels exactly as approved:
+
+* Plays
+* Fairy Tales
+
+Do not replace these large visual titles with longer SEO wording.
+
+10. Preserve the existing SEO metadata implementation. Update copy-derived metadata only where appropriate.
+
+---
+
+## RU
+
+[INSERT THE APPROVED RU COPY EXACTLY AS PROVIDED]
+
+---
+
+## UA
+
+[INSERT THE APPROVED UA COPY EXACTLY AS PROVIDED]
+
+---
+
+## EN
+
+[INSERT THE APPROVED EN COPY EXACTLY AS PROVIDED]
+
+---
+
+## NL
+
+[INSERT THE APPROVED NL COPY EXACTLY AS PROVIDED]
+
+---
+
+After applying the content:
+
+1. verify all four locales;
+2. check that no placeholder biography remains;
+3. confirm that `contact@bohatova.art` is shown where appropriate;
+4. confirm homepage design is visually unchanged;
+5. confirm SEO still works;
+6. confirm TypeScript/build checks pass.
+
+Then stop and report exactly which pages/content records were updated.
+
+Do not perform any additional feature work.

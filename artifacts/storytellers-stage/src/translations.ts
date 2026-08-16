@@ -134,14 +134,14 @@ export const translations: Record<Language, Translation> = {
       backToHome: 'Back',
     },
     hero: {
-      title: "Stories for the Stage and the Soul",
-      subtitle: "Original plays for amateur theatre and magical fairy tales for children.",
-      exploreStage: "Explore the Stage",
-      enterMagic: "Enter the Magic",
+      title: "Playwright and prose writer",
+      subtitle: "Sofia Bohatova writes plays and fairy tales about people searching for themselves, trying to understand one another, and making sense of the world around them.\n\nThere is very little magic here — yet animals and objects speak, and the characters sometimes find themselves in situations where ordinary life becomes a little more unusual, a little funnier, and more important than it first seemed.",
+      exploreStage: "Stories that come alive on stage.",
+      enterMagic: "Almost no magic. Simply their fairy-tale life.",
     },
     plays: {
-      title: "Theatrical Plays",
-      description: "Engaging scripts designed for amateur theatre groups, focusing on human connection and community.",
+      title: "Plays",
+      description: "From the darkness of the auditorium, we watch the characters on a lit stage trying to find themselves.\n\nSometimes they do it through songs and dancing; sometimes through conflict, fear, or pain. At times, meeting who they are today means letting go of who they were yesterday.\n\nFor Sofia Bohatova, theatre is a distinctive form of literature. On stage, there is no room for accidental words or gestures: everything has to mean something. At the same time, theatre allows an author to witness something that ordinary reading cannot reveal — one story resonating with many people at once.\n\nThe site presents plays for professional, amateur, youth, school, and children's theatres.",
       items: [
         {
           slug: 'the-echo-of-silence',
@@ -161,7 +161,7 @@ export const translations: Record<Language, Translation> = {
     },
     fairyTales: {
       title: "Fairy Tales",
-      description: "Whimsical stories written for children, full of wonder and gentle wisdom.",
+      description: "Here, animals and objects speak to people. But is that really magic?\n\nPerhaps it is simply their fairy-tale life.\n\nSofia Bohatova's fairy tales grew out of the bedtime stories she began telling her own children many years ago.\n\nThey are stories for children and adults about friendship and loneliness, good and evil, attachment, misconceptions, and small discoveries that can sometimes change the way we see familiar things.",
       items: [
         {
           slug: 'the-star-that-fell-in-the-well',
@@ -179,11 +179,11 @@ export const translations: Record<Language, Translation> = {
     },
     about: {
       title: "About the Author",
-      content: "The author is a writer and playwright based in the Netherlands, with roots in Ukraine. She writes for amateur theatre groups and for children, believing that stories are the quietest way to cross any distance between people.",
+      content: "A Ukrainian playwright and prose writer living in Belgium.\n\nBefore literature became one of the central parts of her life, Sofia worked in art exhibition organisation and film production.\n\nShe began writing around twenty years ago. Her first texts were fairy tales that grew out of bedtime stories she told her children.\n\nOver time, Sofia was drawn to playwriting — a form she values for its precision. On stage, an unnecessary word or gesture immediately becomes visible, while a literary text becomes a living action experienced simultaneously by actors and audiences.\n\nFor Sofia, ideas matter most when they are shared through a story that first of all engages the reader or viewer. She is interested in questions that remain relevant at any age: where the boundary lies between good and evil, how we distinguish truth from misconception, why we fear loneliness, and why we need other people.\n\nHer plays have already been staged in Belgium and have received warm responses from audiences.",
     },
     contact: {
-      title: "Get in Touch",
-      description: "Interested in staging one of the plays, or in the fairy tales for your children? Please reach out.",
+      title: "Contact Sofia Bohatova",
+      description: "For enquiries about productions, full scripts, publishing, translations, festivals, collaboration — or simply to share your thoughts about something you have read — use the contact form on this website.\n\nEmail: contact@bohatova.art",
       name: "Name",
       email: "Email",
       message: "Message",
@@ -262,14 +262,14 @@ export const translations: Record<Language, Translation> = {
       backToHome: "Назад",
     },
     hero: {
-      title: "Історії для сцени та душі",
-      subtitle: "Оригінальні п'єси для аматорського театру та чарівні казки для дітей.",
-      exploreStage: "На сцену",
-      enterMagic: "У казку",
+      title: "Драматургиня і прозаїкиня",
+      subtitle: "Софія Богатова пише п'єси та казки про те, як людина шукає себе, намагається зрозуміти інших і розібратися у світі навколо.\n\nТут майже немає чарів — але звірі й предмети розмовляють, а герої іноді опиняються в ситуаціях, де звичайне життя стає трохи незвичнішим, смішнішим і важливішим, ніж здавалося спочатку.",
+      exploreStage: "Історії, що оживають на сцені.",
+      enterMagic: "Майже без чарів. Просто їхнє казкове життя.",
     },
     plays: {
-      title: "Театральні п'єси",
-      description: "Захоплюючі сценарії для аматорських театральних груп.",
+      title: "П'єси",
+      description: "З темряви глядацької зали ми спостерігаємо, як на освітленій сцені герої намагаються знайти себе.\n\nІноді вони роблять це з піснями й танцями, іноді — через конфлікт, страх або біль. Часом, щоб зустрітися із собою сьогоднішнім, їм доводиться відмовитися від себе вчорашнього.\n\nДля Софії Богатової театр — особлива форма літератури. На сцені немає місця випадковим словам і жестам: усе повинно мати сенс. Водночас саме театр дозволяє побачити те, чого не видно під час звичайного читання тексту, — як одна історія одночасно відгукується в багатьох глядачах.\n\nНа сайті представлені п'єси для професійних, аматорських, молодіжних, шкільних і дитячих театрів.",
       items: [
         {
           slug: 'the-echo-of-silence',
@@ -289,7 +289,7 @@ export const translations: Record<Language, Translation> = {
     },
     fairyTales: {
       title: "Казки",
-      description: "Примхливі казки, повні дива та лагідної мудрості.",
+      description: "Тут звірі й предмети розмовляють із людьми. Але хіба це чари?\n\nМожливо, це просто їхнє казкове життя.\n\nКазки Софії Богатової виросли з історій, які багато років тому вона почала розповідати перед сном власним дітям.\n\nЦе казки для дітей і дорослих про дружбу й самотність, добро і зло, прив'язаність, омани та маленькі відкриття, які іноді змінюють наш погляд на звичні речі.",
       items: [
         {
           slug: 'the-star-that-fell-in-the-well',
@@ -307,11 +307,11 @@ export const translations: Record<Language, Translation> = {
     },
     about: {
       title: "Про авторку",
-      content: "Авторка — письменниця та драматург, яка живе в Нідерландах та має коріння в Україні. Вона пише для аматорських театрів та для дітей.",
+      content: "Драматургиня і прозаїкиня з України, яка живе в Бельгії.\n\nДо того як література стала однією з головних частин її життя, Софія займалася організацією художніх виставок і працювала у кіновиробництві.\n\nПисати вона почала близько двадцяти років тому. Першими текстами стали казки, що виросли з історій, які вона розповідала своїм дітям перед сном.\n\nЗгодом Софія прийшла до драматургії — форми, яку цінує за її точність. На сцені зайве слово або жест відразу стає помітним, а літературний текст перетворюється на живу дію, яку водночас переживають актори й глядачі.\n\nДля Софії важливо говорити про ідеї у формі історії, яка передусім захоплює. Її цікавлять питання, що супроводжують людину незалежно від віку: де проходить межа між добром і злом, як відрізнити істину від омани, чому ми боїмося самотності й чому потребуємо інших людей.\n\nЇї п'єси вже ставлять у Бельгії, і вони отримують теплі відгуки глядачів.",
     },
     contact: {
-      title: "Зв'яжіться зі мною",
-      description: "Зацікавлені у постановці однієї з п'єс або казок? Напишіть мені.",
+      title: "Зв'язатися із Софією Богатовою",
+      description: "Щодо постановок, повних текстів п'єс, публікацій, перекладів, фестивалів, співпраці або просто щоб поділитися враженням від прочитаного — напишіть через форму на сайті.\n\nEmail: contact@bohatova.art",
       name: "Ім'я",
       email: "Електронна пошта",
       message: "Повідомлення",
@@ -339,9 +339,9 @@ export const translations: Record<Language, Translation> = {
       },
     },
     scriptRequest: {
-      ctaLabel: "Запросити повний сценарій",
-      modalTitle: "Запит на повний сценарій",
-      requestingPlay: "Запит на сценарій п'єси:",
+      ctaLabel: "Запросити повний текст",
+      modalTitle: "Запит на повний текст",
+      requestingPlay: "Запит на текст п'єси:",
       name: "Ваше ім'я",
       email: "Електронна пошта",
       organization: "Організація / Театр",
@@ -370,7 +370,7 @@ export const translations: Record<Language, Translation> = {
       success: "Дякуємо. Ваш запит отримано.",
       successDetail: "Софія Богатова зв'яжеться з вами найближчим часом.",
       error: "Щось пішло не так. Спробуйте ще раз.",
-      privacyNote: "Надана вами інформація буде використана виключно для відповіді на ваш запит на сценарій.",
+      privacyNote: "Надана вами інформація буде використана виключно для відповіді на ваш запит на текст.",
       cancel: "Скасувати",
       validation: {
         organizationRequired: "Будь ласка, вкажіть назву організації.",
@@ -390,14 +390,14 @@ export const translations: Record<Language, Translation> = {
       backToHome: "Назад",
     },
     hero: {
-      title: "Истории для сцены и души",
-      subtitle: "Оригинальные пьесы для любительского театра и волшебные сказки для детей.",
-      exploreStage: "На сцену",
-      enterMagic: "В сказку",
+      title: "Драматург и прозаик",
+      subtitle: "София Богатова пишет пьесы и сказки о том, как человек ищет себя, пытается понять других и разобраться в мире вокруг.\n\nЗдесь почти нет волшебства — но звери и предметы разговаривают, а герои иногда оказываются в ситуациях, где обычная жизнь становится немного необычнее, смешнее и важнее, чем казалась сначала.",
+      exploreStage: "Истории, которые оживают на сцене.",
+      enterMagic: "Почти без волшебства. Просто их сказочная жизнь.",
     },
     plays: {
-      title: "Театральные пьесы",
-      description: "Захватывающие сценарии для любительских театральных групп.",
+      title: "Пьесы",
+      description: "Из темноты зрительного зала мы наблюдаем за тем, как на освещённой сцене герои пытаются найти себя.\n\nИногда они делают это с песнями и танцами, иногда — через конфликт, страх или боль. Порой для встречи с собой сегодняшним им приходится отказаться от себя вчерашнего.\n\nДля Софии Богатовой театр — особая форма литературы. На сцене нет места случайным словам и жестам: всё должно иметь смысл. Но именно театр позволяет увидеть то, чего невозможно увидеть, когда человек просто читает текст, — как одна история одновременно отзывается во множестве зрителей.\n\nНа сайте представлены пьесы для профессиональных, любительских, молодёжных, школьных и детских театров.",
       items: [
         {
           slug: 'the-echo-of-silence',
@@ -417,7 +417,7 @@ export const translations: Record<Language, Translation> = {
     },
     fairyTales: {
       title: "Сказки",
-      description: "Причудливые сказки, полные удивления и мягкой мудрости.",
+      description: "Здесь звери и предметы разговаривают с людьми. Но разве это волшебство?\n\nВозможно, это просто их сказочная жизнь.\n\nСказки Софии Богатовой выросли из историй, которые она много лет назад начала рассказывать перед сном собственным детям.\n\nЭто сказки для детей и взрослых о дружбе и одиночестве, добре и зле, привязанности, заблуждениях и маленьких открытиях, которые иногда меняют то, как мы смотрим на привычные вещи.",
       items: [
         {
           slug: 'the-star-that-fell-in-the-well',
@@ -435,11 +435,11 @@ export const translations: Record<Language, Translation> = {
     },
     about: {
       title: "Об авторе",
-      content: "Автор — писатель и драматург, живущий в Нидерландах с украинскими корнями. Она пишет для любительских театров и для детей.",
+      content: "Драматург и прозаик из Украины, живущая в Бельгии.\n\nДо того как литература стала одной из главных частей её жизни, София занималась организацией художественных выставок и работала в кинопроизводстве.\n\nПисать она начала около двадцати лет назад. Первыми текстами стали сказки, выросшие из историй, которые она рассказывала своим детям перед сном.\n\nПостепенно София пришла к драматургии — форме, которую она ценит за её точность. На сцене лишнее слово или жест сразу становится заметным, а литературный текст превращается в живое действие, которое одновременно переживают актёры и зрители.\n\nДля Софии важно говорить об идеях в форме истории, которая прежде всего увлекает. Её интересуют вопросы, которые сопровождают человека независимо от возраста: где проходит граница между добром и злом, как отличить истину от заблуждения, почему мы боимся одиночества и почему нуждаемся в других людях.\n\nЕё пьесы уже ставятся в Бельгии и получают тёплый отклик зрителей.",
     },
     contact: {
-      title: "Связаться со мной",
-      description: "Интересует постановка одной из пьес или сказок? Напишите мне.",
+      title: "Связаться с Софией Богатовой",
+      description: "По вопросам постановок, полного текста пьес, публикаций, переводов, фестивалей, сотрудничества или просто чтобы поделиться впечатлением от прочитанного — напишите через форму на сайте.\n\nE-mail: contact@bohatova.art",
       name: "Имя",
       email: "Электронная почта",
       message: "Сообщение",
@@ -454,7 +454,7 @@ export const translations: Record<Language, Translation> = {
         reader: "Сообщение читателя",
         other: "Другое",
       },
-      success: "Спасибо. Ваше сообщение отправлено Софье Богатовой.",
+      success: "Спасибо. Ваше сообщение отправлено Софии Богатовой.",
       error: "Что-то пошло не так. Пожалуйста, попробуйте снова.",
       sending: "Отправка…",
       privacyNote: "Предоставленная вами информация будет использована исключительно для ответа на ваш запрос.",
@@ -467,9 +467,9 @@ export const translations: Record<Language, Translation> = {
       },
     },
     scriptRequest: {
-      ctaLabel: "Запросить полный сценарий",
-      modalTitle: "Запрос полного сценария",
-      requestingPlay: "Запрос сценария пьесы:",
+      ctaLabel: "Запросить полный текст",
+      modalTitle: "Запрос полного текста",
+      requestingPlay: "Запрос текста пьесы:",
       name: "Ваше имя",
       email: "Электронная почта",
       organization: "Организация / Театр",
@@ -477,9 +477,9 @@ export const translations: Record<Language, Translation> = {
       role: "Ваша роль / должность",
       rolePlaceholder: "напр. Художественный руководитель",
       city: "Город",
-      cityPlaceholder: "напр. Москва",
+      cityPlaceholder: "напр. Брюссель",
       country: "Страна",
-      countryPlaceholder: "напр. Россия",
+      countryPlaceholder: "напр. Бельгия",
       intendedUse: "Цель использования",
       intendedUseOptions: {
         reading: "Чтение / Оценка",
@@ -496,7 +496,7 @@ export const translations: Record<Language, Translation> = {
       sending: "Отправка…",
       successTitle: "Запрос получен",
       success: "Спасибо. Ваш запрос получен.",
-      successDetail: "Софья Богатова свяжется с вами в ближайшее время.",
+      successDetail: "София Богатова свяжется с вами в ближайшее время.",
       error: "Что-то пошло не так. Попробуйте снова.",
       privacyNote: "Предоставленная вами информация будет использована исключительно для ответа на ваш запрос.",
       cancel: "Отмена",
@@ -513,19 +513,19 @@ export const translations: Record<Language, Translation> = {
     nav: {
       plays: "Toneelstukken",
       fairyTales: "Sprookjes",
-      about: "Over mij",
+      about: "Over de auteur",
       contact: "Contact",
       backToHome: "Terug",
     },
     hero: {
-      title: "Verhalen voor het Toneel en de Ziel",
-      subtitle: "Originele toneelstukken voor amateurtoneel en magische sprookjes voor kinderen.",
-      exploreStage: "Het toneel op",
-      enterMagic: "De magie in",
+      title: "Toneelschrijver en proza-auteur",
+      subtitle: "Sofia Bohatova schrijft toneelstukken en sprookjes over mensen die zichzelf proberen te vinden, anderen willen begrijpen en hun weg zoeken in de wereld om hen heen.\n\nEr is hier nauwelijks magie — en toch praten dieren en voorwerpen, en komen de personages soms terecht in situaties waarin het gewone leven net iets ongebruikelijker, grappiger en belangrijker wordt dan het aanvankelijk leek.",
+      exploreStage: "Verhalen die op het toneel tot leven komen.",
+      enterMagic: "Bijna geen magie. Gewoon hun sprookjesleven.",
     },
     plays: {
       title: "Toneelstukken",
-      description: "Boeiende scripts voor amateurtoneelgroepen.",
+      description: "Vanuit de duisternis van de zaal kijken we hoe de personages op het verlichte toneel zichzelf proberen te vinden.\n\nSoms doen ze dat met zang en dans, soms via conflict, angst of pijn. Soms moeten ze afscheid nemen van wie ze gisteren waren om te kunnen ontdekken wie ze vandaag zijn.\n\nVoor Sofia Bohatova is theater een bijzondere vorm van literatuur. Op het toneel is geen plaats voor toevallige woorden of gebaren: alles moet betekenis hebben. Tegelijk maakt theater iets zichtbaar wat bij gewoon lezen verborgen blijft — hoe één verhaal tegelijk bij veel verschillende mensen weerklank vindt.\n\nOp deze website staan toneelstukken voor professionele, amateur-, jeugd-, school- en kindertheaters.",
       items: [
         {
           slug: 'the-echo-of-silence',
@@ -545,7 +545,7 @@ export const translations: Record<Language, Translation> = {
     },
     fairyTales: {
       title: "Sprookjes",
-      description: "Speelse verhalen vol wonder en zachte wijsheid.",
+      description: "Hier praten dieren en voorwerpen met mensen. Maar is dat eigenlijk wel magie?\n\nMisschien is het gewoon hun sprookjesleven.\n\nDe sprookjes van Sofia Bohatova ontstonden uit de verhaaltjes die zij vele jaren geleden voor het slapengaan aan haar eigen kinderen begon te vertellen.\n\nHet zijn verhalen voor kinderen en volwassenen over vriendschap en eenzaamheid, goed en kwaad, verbondenheid, misvattingen en kleine ontdekkingen die soms veranderen hoe we naar vertrouwde dingen kijken.",
       items: [
         {
           slug: 'the-star-that-fell-in-the-well',
@@ -562,16 +562,16 @@ export const translations: Record<Language, Translation> = {
       ],
     },
     about: {
-      title: "Over de Auteur",
-      content: "De auteur is een schrijfster en toneelschrijfster gevestigd in Nederland met Oekraïense roots. Ze schrijft voor amateurtoneelgroepen en voor kinderen.",
+      title: "Over de auteur",
+      content: "Een Oekraïense toneelschrijver en proza-auteur die in België woont.\n\nVoordat literatuur een van de centrale onderdelen van haar leven werd, hield Sofia zich bezig met de organisatie van kunsttentoonstellingen en werkte ze in de filmproductie.\n\nZe begon ongeveer twintig jaar geleden te schrijven. Haar eerste teksten waren sprookjes die voortkwamen uit de verhalen die ze haar kinderen voor het slapengaan vertelde.\n\nGeleidelijk vond Sofia haar weg naar het toneelschrijven — een vorm die ze waardeert om haar precisie. Op het toneel wordt een overbodig woord of gebaar meteen zichtbaar, terwijl een literaire tekst verandert in een levende handeling die acteurs en publiek samen beleven.\n\nVoor Sofia is het belangrijk om ideeën te delen via verhalen die de lezer of toeschouwer in de eerste plaats weten te boeien. Ze is geïnteresseerd in vragen die mensen van elke leeftijd bezighouden: waar de grens ligt tussen goed en kwaad, hoe we waarheid van misvatting onderscheiden, waarom we bang zijn voor eenzaamheid en waarom we andere mensen nodig hebben.\n\nHaar toneelstukken zijn al in België opgevoerd en kregen warme reacties van het publiek.",
     },
     contact: {
-      title: "Neem Contact Op",
-      description: "Geïnteresseerd in het opvoeren van een van de stukken, of de sprookjes voor uw kinderen? Neem contact op.",
+      title: "Neem contact op met Sofia Bohatova",
+      description: "Voor vragen over opvoeringen, volledige toneelteksten, publicaties, vertalingen, festivals, samenwerking — of gewoon om uw indruk van een gelezen tekst te delen — kunt u het contactformulier op deze website gebruiken.\n\nE-mail: contact@bohatova.art",
       name: "Naam",
       email: "E-mail",
       message: "Bericht",
-      send: "Verstuur Bericht",
+      send: "Stuur een bericht",
       category: "Type aanvraag",
       categories: {
         general: "Algemeen",
@@ -595,9 +595,9 @@ export const translations: Record<Language, Translation> = {
       },
     },
     scriptRequest: {
-      ctaLabel: "Volledig script aanvragen",
-      modalTitle: "Volledig script aanvragen",
-      requestingPlay: "Script aanvragen voor:",
+      ctaLabel: "Vraag de volledige tekst aan",
+      modalTitle: "Volledige tekst aanvragen",
+      requestingPlay: "Tekst aanvragen voor:",
       name: "Uw naam",
       email: "E-mailadres",
       organization: "Organisatie / Theater",
