@@ -46,7 +46,7 @@ export function SplitScreenHome() {
           <div className="mb-6 p-4 rounded-full bg-white/10 group-hover:scale-110 group-hover:bg-stage-mint/20 transition-all duration-500">
             <Theater className="w-12 h-12 text-stage-mint" strokeWidth={1.5} />
           </div>
-          <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-tight">
+          <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-tight text-[#DBBD67]">
             {t.nav.plays}
           </h2>
           <p className="font-mono text-sm md:text-base uppercase tracking-widest text-white/80 group-hover:text-stage-mint transition-colors duration-300">
@@ -77,7 +77,7 @@ export function SplitScreenHome() {
           <div className="mb-6 p-4 rounded-full bg-black/5 group-hover:scale-110 group-hover:bg-stage-mint/20 transition-all duration-500">
             <BookOpen className="w-12 h-12 text-stage-mint" strokeWidth={1.5} />
           </div>
-          <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-tight">
+          <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-tight text-[#C25F84]">
             {t.nav.fairyTales}
           </h2>
           <p className="font-mono text-sm md:text-base uppercase tracking-widest text-stage-dark/70 group-hover:text-stage-mint transition-colors duration-300">
