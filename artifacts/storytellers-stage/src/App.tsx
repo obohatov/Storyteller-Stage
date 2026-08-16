@@ -27,6 +27,8 @@ const AdminFairyTaleEdit = lazy(() => import('@/admin/AdminFairyTaleEdit'));
 const AdminPlaysList = lazy(() => import('@/admin/AdminPlaysList'));
 const AdminPlayEdit = lazy(() => import('@/admin/AdminPlayEdit'));
 const AdminAbout = lazy(() => import('@/admin/AdminAbout'));
+const AdminMessages = lazy(() => import('@/admin/AdminMessages'));
+const AdminMessageDetail = lazy(() => import('@/admin/AdminMessageDetail'));
 
 const queryClient = new QueryClient();
 
@@ -41,6 +43,8 @@ function AdminRoutes() {
           <Route path="/admin/plays" component={AdminPlaysList} />
           <Route path="/admin/plays/:id" component={AdminPlayEdit} />
           <Route path="/admin/about" component={AdminAbout} />
+          <Route path="/admin/messages/:id" component={AdminMessageDetail} />
+          <Route path="/admin/messages" component={AdminMessages} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>

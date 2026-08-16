@@ -1,6 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { eq, and, count } from "drizzle-orm";
-import { db, fairyTaleTranslationsTable, playTranslationsTable } from "@workspace/db";
+import { db, fairyTaleTranslationsTable, playTranslationsTable, messagesTable } from "@workspace/db";
 import { isAdminUser } from "../../lib/adminGuard";
 
 const router: IRouter = Router();
@@ -9,10 +9,6 @@ const LOCALES = ["en", "uk", "ru", "nl"];
 
 /**
  * GET /admin/me
- * Returns { isAdmin: true, user: {...} } for the current admin.
- * Returns 401 (not authenticated) or 403 (not admin) via the requireAdmin middleware
- * mounted on the parent adminRouter — so if this handler is reached, the caller is
- * always a verified admin.
  */
 router.get("/admin/me", (req: Request, res: Response): void => {
   const user = req.user as {
@@ -27,14 +23,15 @@ router.get("/admin/me", (req: Request, res: Response): void => {
 
 /**
  * GET /admin/dashboard
- * Returns translation counts and per-locale coverage.
  */
 router.get("/admin/dashboard", async (_req: Request, res: Response): Promise<void> => {
-  const [ftPublished, ftDraft, plPublished, plDraft] = await Promise.all([
+  const [ftPublished, ftDraft, plPublished, plDraft, newContact, newScript] = await Promise.all([
     db.select({ value: count() }).from(fairyTaleTranslationsTable).where(eq(fairyTaleTranslationsTable.status, "published")),
     db.select({ value: count() }).from(fairyTaleTranslationsTable).where(eq(fairyTaleTranslationsTable.status, "draft")),
     db.select({ value: count() }).from(playTranslationsTable).where(eq(playTranslationsTable.status, "published")),
     db.select({ value: count() }).from(playTranslationsTable).where(eq(playTranslationsTable.status, "draft")),
+    db.select({ value: count() }).from(messagesTable).where(and(eq(messagesTable.type, "contact"), eq(messagesTable.status, "new"))),
+    db.select({ value: count() }).from(messagesTable).where(and(eq(messagesTable.type, "script_request"), eq(messagesTable.status, "new"))),
   ]);
 
   const coverageParts = await Promise.all(
@@ -49,9 +46,11 @@ router.get("/admin/dashboard", async (_req: Request, res: Response): Promise<voi
 
   res.json({
     publishedFairyTales: Number(ftPublished[0]?.value ?? 0),
-    draftFairyTales: Number(ftDraft[0]?.value ?? 0),
-    publishedPlays: Number(plPublished[0]?.value ?? 0),
-    draftPlays: Number(plDraft[0]?.value ?? 0),
+    draftFairyTales:     Number(ftDraft[0]?.value ?? 0),
+    publishedPlays:      Number(plPublished[0]?.value ?? 0),
+    draftPlays:          Number(plDraft[0]?.value ?? 0),
+    newContactMessages:  Number(newContact[0]?.value ?? 0),
+    newScriptRequests:   Number(newScript[0]?.value ?? 0),
     translationCoverage: coverageParts,
   });
 });

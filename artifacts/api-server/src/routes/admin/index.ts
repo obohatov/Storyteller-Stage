@@ -4,6 +4,7 @@ import fairyTalesRouter from "./fairy-tales";
 import playsRouter from "./plays";
 import aboutRouter from "./about";
 import dashboardRouter from "./dashboard";
+import messagesRouter from "./messages";
 
 const adminRouter: IRouter = Router();
 
@@ -14,5 +15,6 @@ adminRouter.use(dashboardRouter);
 adminRouter.use(fairyTalesRouter);
 adminRouter.use(playsRouter);
 adminRouter.use(aboutRouter);
+adminRouter.use(messagesRouter);
 
 export default adminRouter;

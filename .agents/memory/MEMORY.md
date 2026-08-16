@@ -2,3 +2,4 @@
 - [Orval codegen quirks](orval-codegen-quirks.md) — Known issues with orval v8.23 + Zod v3: format:email/uri → z.email()/z.url() breaks; types folder collides with Zod consts; how to fix
 - [CMS security hardening](cms-security-hardening.md) — All 10 security fixes applied (admin allowlist, XSS sanitization, MIME/size validation, slug 409s, input limits, preview-mode admin gate)
 - [Phase 3 SEO](phase3-seo.md) — meta-server.ts: Express+Vite middlewareMode HTML injection; BASE_PATH=/; Express 5 no bare * wildcards; hrefLang not hreflang in Helmet JSX
+- [Phase 4 messaging](phase4-messaging.md) — Single messages table (type discriminator), shared rate limiter across both endpoints, Resend email gracefully optional, translations extend all 4 locales

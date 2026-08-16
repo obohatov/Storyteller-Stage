@@ -1,16 +1,19 @@
+import { useState } from 'react';
 import { useLocale } from '@/hooks/use-locale';
 import { SiteHeader } from '@/components/SiteHeader';
 import { useParams, Link } from 'wouter';
 import { useGetPublicPlay, getGetPublicPlayQueryKey } from '@workspace/api-client-react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, FileText } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { workTitle, buildHreflang, buildPageUrl, type SeoLocale } from '@/lib/seo';
+import { RequestScriptModal } from '@/components/RequestScriptModal';
 
 export function PlayDetailPage() {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const params = useParams();
   const slug = params.slug || '';
-  
+  const [modalOpen, setModalOpen] = useState(false);
+
   const { data: play, isLoading, isError } = useGetPublicPlay(slug, { locale }, {
     query: {
       enabled: !!slug,
@@ -46,7 +49,6 @@ export function PlayDetailPage() {
         <main className="flex-1 container mx-auto px-6 flex flex-col items-center justify-center text-center max-w-2xl">
           <h1 className="text-4xl font-serif font-bold text-stage-dark mb-6">Not Available</h1>
           <p className="text-xl text-stage-dark/70 font-sans mb-8">This play is not yet available in the selected language.</p>
-          
           <div className="flex gap-4 items-center justify-center">
             <Link href={`/${locale}/plays`}>
               <span className="inline-block px-6 py-3 bg-stage-pink text-white rounded-full font-medium hover:bg-stage-pink/90 transition-colors cursor-pointer">
@@ -60,8 +62,12 @@ export function PlayDetailPage() {
   }
 
   const pageTitle = anyPlay.seoTitle || workTitle(play.title ?? '', locale as SeoLocale);
-  const pageDesc = anyPlay.seoDescription || play.logline || '';
-  const coverUrl = play.coverImagePath ? `/api/storage/public-objects/${play.coverImagePath}` : undefined;
+  const pageDesc  = anyPlay.seoDescription || play.logline || '';
+  const coverUrl  = play.coverImagePath ? `/api/storage/public-objects/${play.coverImagePath}` : undefined;
+
+  // Show Request Full Script CTA for on_request or excerpt_only availability
+  const showRequestCta =
+    (play as typeof play & { scriptAvailability?: string }).scriptAvailability !== 'public';
 
   return (
     <div className="min-h-[100dvh] bg-stage-cream flex flex-col">
@@ -76,11 +82,11 @@ export function PlayDetailPage() {
       </Helmet>
 
       <div className="absolute top-0 left-0 w-full h-[60vh] bg-stage-pink -z-10" />
-      
+
       <SiteHeader showBack backHref={`/${locale}/plays`} theme="dark" />
-      
+
       <main className="flex-1 container mx-auto px-6 pt-24 pb-24 max-w-4xl flex flex-col items-center text-center">
-        
+
         {play.coverImagePath && (
           <div className="mb-12 shadow-2xl rounded-2xl overflow-hidden w-full max-w-lg aspect-square bg-white border border-white/20">
             <img
@@ -91,11 +97,11 @@ export function PlayDetailPage() {
             />
           </div>
         )}
-        
+
         <span className="font-mono text-sm tracking-widest text-stage-mint/90 uppercase mb-6 bg-black/10 px-4 py-1.5 rounded-full backdrop-blur-sm">
           {play.genre || 'Play'}
         </span>
-        
+
         <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-6 max-w-3xl leading-tight">
           {play.title}
         </h1>
@@ -138,7 +144,7 @@ export function PlayDetailPage() {
             </div>
           )}
         </div>
-        
+
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-16 w-full text-left text-lg leading-relaxed text-stage-dark/80 font-sans shadow-stage-pink/10">
           {play.logline && (
             <>
@@ -148,7 +154,7 @@ export function PlayDetailPage() {
               <div className="w-16 h-px bg-stage-pink/30 mb-10 mx-auto" />
             </>
           )}
-          
+
           <div className="space-y-12">
             {play.synopsis && (
               <div>
@@ -156,23 +162,54 @@ export function PlayDetailPage() {
                 <div className="prose prose-lg prose-stage max-w-none" dangerouslySetInnerHTML={{ __html: play.synopsis }} />
               </div>
             )}
-            
+
             {play.excerpt && (
               <div>
                 <h3 className="text-2xl font-serif font-bold text-stage-dark mb-4">Excerpt</h3>
                 <div className="p-6 bg-[#F7F5F0] rounded-xl border border-[#DCD6CC] prose prose-lg prose-stage max-w-none" dangerouslySetInnerHTML={{ __html: play.excerpt }} />
               </div>
             )}
-            
+
             {play.stagingNotes && (
               <div>
                 <h3 className="text-2xl font-serif font-bold text-stage-dark mb-4">Staging Notes</h3>
                 <div className="prose prose-lg prose-stage max-w-none" dangerouslySetInnerHTML={{ __html: play.stagingNotes }} />
               </div>
             )}
+
+            {/* Request Full Script CTA */}
+            {showRequestCta && (
+              <div className="border-t border-[#DCD6CC] pt-10 flex flex-col items-center text-center gap-4">
+                <div className="p-3 bg-stage-pink/10 rounded-xl text-stage-pink">
+                  <FileText className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-serif font-bold text-stage-dark mb-1">
+                    {t.scriptRequest.ctaLabel}
+                  </h3>
+                  <p className="text-stage-dark/60 font-sans text-sm">
+                    Contact the author to receive the complete script.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setModalOpen(true)}
+                  className="px-8 py-3 bg-stage-pink text-white rounded-full font-sans font-medium hover:bg-stage-pink/90 transition-colors shadow-lg shadow-stage-pink/20"
+                  data-testid="btn-request-script"
+                >
+                  {t.scriptRequest.ctaLabel}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </main>
+
+      <RequestScriptModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        playTitle={play.title ?? ''}
+        playSlug={slug}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Loader2, LayoutDashboard, BookOpen, Drama, UserRound, LogOut } from 'lucide-react';
+import { Loader2, LayoutDashboard, BookOpen, Drama, UserRound, LogOut, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type AdminUser = {
@@ -109,6 +109,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     { href: '/admin/fairy-tales', label: 'Fairy Tales', icon: BookOpen },
     { href: '/admin/plays', label: 'Plays', icon: Drama },
     { href: '/admin/about', label: 'About Page', icon: UserRound },
+    { href: '/admin/messages', label: 'Messages', icon: Mail },
   ];
 
   return (

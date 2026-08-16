@@ -1,0 +1,686 @@
+Implement **Phase 4: production-ready Contact and Request Full Script workflows**.
+
+The current frontend, CMS, PostgreSQL model, security hardening, multilingual routing, visual design and SEO architecture are approved.
+
+**Do not redesign the site.**
+
+This phase should add two distinct communication workflows:
+
+1. **General Contact**
+2. **Request Full Script** for individual plays
+
+Both types of submissions must be securely stored in PostgreSQL and manageable from the private CMS.
+
+Email notification to the author should be added as a secondary delivery channel, but the database must remain the reliable source of truth.
+
+The site has four locales:
+
+* English: `en`
+* Ukrainian: `uk`
+* Russian: `ru`
+* Dutch: `nl`
+
+---
+
+# 1. General principle
+
+Do NOT combine Contact and Request Full Script into one generic form.
+
+They serve different audiences and collect different information.
+
+### General Contact
+
+For:
+
+* readers
+* publishers
+* translators
+* festivals
+* collaboration
+* other general enquiries
+
+### Request Full Script
+
+Primarily for:
+
+* theatres
+* directors
+* producers
+* festival programmers
+* publishers
+* other theatre professionals interested in a specific play
+
+---
+
+# 2. PostgreSQL message model
+
+Create an appropriate database structure for incoming enquiries.
+
+A clean approach could use either:
+
+* one `messages` table with a message type and type-specific fields, or
+* separate `contact_messages` and `script_requests` tables.
+
+Choose the simplest maintainable structure.
+
+All submissions should store at minimum:
+
+* id
+* type
+* locale
+* name
+* email
+* message
+* status
+* created_at
+
+Where appropriate also store:
+
+* organization
+* role / position
+* city
+* country
+* enquiry category
+* play_id
+* intended use
+
+Use foreign keys where appropriate.
+
+Do not store unnecessary personal data.
+
+---
+
+# 3. Message statuses
+
+Keep the workflow simple.
+
+Support statuses such as:
+
+* `new`
+* `read`
+* `archived`
+
+For Script Requests, optionally also support:
+
+* `replied`
+
+only if this can be added cleanly without overcomplicating the CMS.
+
+Do not create a CRM or ticketing system.
+
+---
+
+# 4. General Contact form
+
+Use the existing public Contact page and preserve its visual design.
+
+The form should contain:
+
+### Required
+
+* Name
+* Email
+* Enquiry type
+* Message
+
+### Enquiry type
+
+Use localized options such as:
+
+* General
+* Publishing
+* Translation
+* Festival
+* Collaboration
+* Reader message
+* Other
+
+Do not hard-code only English labels in the UI.
+
+Store a stable internal enum value in the database.
+
+---
+
+# 5. General Contact validation
+
+Implement both client-side and server-side validation.
+
+At minimum:
+
+### Name
+
+* required
+* sensible maximum length
+
+### Email
+
+* required
+* valid email format
+* normalized where appropriate
+
+### Message
+
+* required
+* sensible minimum and maximum lengths
+
+### Category
+
+* must match one of the allowed enum values
+
+Do not trust frontend validation alone.
+
+---
+
+# 6. Request Full Script workflow
+
+On each Play Detail page, where the CMS setting is:
+
+**Full script available on request**
+
+show a prominent:
+
+**Request Full Script**
+
+CTA.
+
+Preserve the existing Play page design.
+
+Clicking the CTA should open either:
+
+* a well-designed modal, or
+* a dedicated localized request page
+
+Choose whichever integrates most cleanly with the existing UI.
+
+Do not redesign the page around the form.
+
+---
+
+# 7. Script Request form
+
+The form must automatically know which play is being requested.
+
+The visitor must NOT need to type the play title manually.
+
+Store the actual `play_id`.
+
+Display the localized play title clearly in the form.
+
+Collect:
+
+### Required
+
+* Name
+* Email
+* Organization / Theatre
+* Country
+* Intended use
+* Message
+
+### Optional
+
+* Role / position
+* City
+
+### Intended use
+
+Stable internal values with localized display labels:
+
+* Reading / evaluation
+* Production
+* Festival
+* Publishing
+* Translation
+* Education
+* Other
+
+Do not allow an arbitrary play ID from the client to bypass validation.
+
+Verify server-side that the requested play exists and that the relevant translation is publicly available.
+
+---
+
+# 8. Respect Script Availability
+
+The CTA behavior must respect the CMS setting.
+
+### Full text public
+
+Do not unnecessarily ask the visitor to request the script if the full script is already public.
+
+### Excerpt only
+
+A Request Full Script CTA may be shown if appropriate.
+
+### Full script available on request
+
+Show the Request Full Script CTA prominently.
+
+Do not expose private/full script content through the API simply because a request was submitted.
+
+Submitting a request does NOT automatically grant access to a private script in this phase.
+
+The author will respond manually.
+
+---
+
+# 9. Four-language UX
+
+All form labels, validation messages, confirmation messages and error states must work in:
+
+* EN
+* UA
+* RU
+* NL
+
+Keep internal database enum values language-neutral.
+
+A user submitting from a Russian page should see Russian UI.
+
+A user submitting from a Dutch page should see Dutch UI.
+
+Also store the locale from which the form was submitted.
+
+---
+
+# 10. Success state
+
+After successful submission, show a clear localized confirmation.
+
+For example, conceptually:
+
+### Contact
+
+“Thank you. Your message has been sent to Sofia Bohatova.”
+
+### Script Request
+
+“Thank you. Your request for [Play Title] has been received.”
+
+These are examples only.
+
+Use natural localized copy.
+
+Do not claim that an email has been delivered unless email delivery actually succeeded.
+
+The database submission itself should be treated as successful once safely stored.
+
+Prevent accidental double-submission while the request is processing.
+
+---
+
+# 11. Failure state
+
+If submission fails:
+
+* keep the user's entered form content where practical;
+* show a clear localized error;
+* do not expose database/server details;
+* allow the user to try again.
+
+Do not display raw stack traces or internal errors.
+
+---
+
+# 12. Spam protection
+
+Implement lightweight, privacy-conscious spam protection.
+
+At minimum:
+
+* server-side rate limiting
+* hidden honeypot field
+* reasonable field-length limits
+* reject obviously automated malformed requests
+
+Do NOT add an intrusive CAPTCHA unless necessary.
+
+Do not add third-party tracking merely for spam prevention.
+
+If you believe CAPTCHA is necessary, stop and explain why before adding it.
+
+---
+
+# 13. Security
+
+All public message-submission endpoints must:
+
+* accept only expected fields
+* validate server-side
+* prevent SQL injection through parameterized/database-safe operations
+* sanitize plain-text fields where appropriate
+* rate-limit abusive requests
+* never expose admin data
+
+The admin message endpoints must use the existing `requireAdmin` middleware.
+
+Anonymous users may submit forms but may never read submissions.
+
+---
+
+# 14. Email notifications
+
+Add email notification to the author for new submissions.
+
+Prefer a simple transactional-email integration suitable for Replit.
+
+If an external provider is required, clearly identify:
+
+* which provider you recommend
+* what environment variable / API key I need
+* whether any account setup is required
+
+Use environment variables such as:
+
+`CONTACT_RECIPIENT_EMAIL`
+
+and the provider API key.
+
+Do NOT hard-code Sofia's email address into frontend code.
+
+The email should contain the useful submission data.
+
+### General Contact notification
+
+Include:
+
+* name
+* email
+* category
+* locale
+* message
+
+### Script Request notification
+
+Include:
+
+* play title
+* name
+* email
+* organization
+* role if provided
+* city/country
+* intended use
+* locale
+* message
+
+Do not include secrets or internal authentication information.
+
+---
+
+# 15. Important delivery behavior
+
+Database persistence and email notification must be decoupled.
+
+Correct flow:
+
+1. Validate submission.
+2. Save it successfully to PostgreSQL.
+3. Attempt email notification.
+4. Return an appropriate result.
+
+If database save succeeds but email notification fails:
+
+* DO NOT lose or delete the enquiry;
+* keep it visible in the CMS;
+* log the email delivery failure safely;
+* do not tell the visitor that their entire submission failed if it is safely stored.
+
+The CMS must remain the reliable inbox.
+
+---
+
+# 16. CMS — Messages
+
+Add a new section to:
+
+**The Writer's Desk**
+
+called:
+
+**Messages**
+
+Keep the existing CMS visual language.
+
+The Messages section should provide two clear views or filters:
+
+* Contact Messages
+* Script Requests
+
+Show useful list information such as:
+
+* New / Read status
+* Sender name
+* Email
+* Type
+* Play title for script requests
+* Date
+* Locale
+
+Newest messages first.
+
+---
+
+# 17. Message detail view
+
+Opening a message should show the complete submission.
+
+For General Contact:
+
+* name
+* email
+* category
+* locale
+* message
+* timestamp
+
+For Script Request:
+
+* requested play
+* name
+* email
+* organization
+* role
+* city/country
+* intended use
+* locale
+* message
+* timestamp
+
+Make the sender email easy to copy or use for replying.
+
+Do not build an email composer inside the CMS in this phase.
+
+The author can reply using her normal email client.
+
+---
+
+# 18. Message actions
+
+Support:
+
+* mark as Read
+* mark as New / Unread
+* Archive
+
+If easy and clean, support Delete with explicit confirmation.
+
+Prefer Archive over Delete for normal use.
+
+Do not add complex folders, labels or CRM workflows.
+
+---
+
+# 19. Dashboard
+
+Add useful message information to the existing dashboard.
+
+At minimum:
+
+* number of new Contact messages
+* number of new Script Requests
+
+Do not redesign the dashboard.
+
+---
+
+# 20. Privacy note
+
+Add a short, unobtrusive localized note near both forms explaining that the submitted information will be used to respond to the enquiry.
+
+Do not add marketing consent.
+
+Do not automatically subscribe people to any newsletter.
+
+No submission through Contact or Request Full Script should imply permission for marketing emails.
+
+---
+
+# 21. No attachments
+
+Do NOT allow visitors to upload attachments in this phase.
+
+This avoids unnecessary file-security and storage complexity.
+
+---
+
+# 22. SEO
+
+Forms and CMS additions must not break the existing Phase 3 SEO implementation.
+
+Public Contact remains a normal localized public page.
+
+Admin message pages must remain:
+
+`noindex`
+
+Do not add message content to the sitemap, structured data or public API.
+
+---
+
+# 23. Existing design must remain unchanged
+
+Do NOT change:
+
+* split-screen homepage
+* fonts
+* typography scale
+* Plays/Fairy Tales wording
+* approved pink/yellow/mint palette
+* animations
+* navigation
+* public card layouts
+* existing SEO metadata logic
+* CMS content workflows
+
+Only add the UI necessary for the two communication workflows.
+
+---
+
+# 24. Do NOT implement
+
+Do not add:
+
+* newsletter signup
+* marketing automation
+* public user accounts
+* automatic script delivery
+* script download tokens
+* payments
+* CRM
+* analytics
+* chat widget
+* file attachments
+* AI-generated replies
+* automated translation
+* automatic email replies beyond a simple receipt if absolutely necessary
+
+These are outside Phase 4.
+
+---
+
+# 25. Verification scenarios
+
+After implementation, test all of these.
+
+### General Contact
+
+1. EN contact form submits successfully.
+2. UA contact form submits successfully.
+3. RU contact form submits successfully.
+4. NL contact form submits successfully.
+5. Submission appears in CMS Messages.
+6. Correct locale is stored.
+7. Invalid email is rejected.
+8. Empty message is rejected.
+9. Double-click does not create accidental duplicate submissions.
+
+### Script Request
+
+10. Open a published play with “Available on request”.
+11. Request form automatically displays the correct play.
+12. Submission stores the correct `play_id`.
+13. Request appears in CMS under Script Requests.
+14. Organization and intended use are stored correctly.
+15. A nonexistent/private play ID cannot be submitted successfully.
+16. Full private script content remains inaccessible.
+
+### Permissions
+
+17. Anonymous visitors cannot access `/admin/messages`.
+18. Authenticated non-admin users receive 403.
+19. Approved admin can read and archive messages.
+
+### Spam/security
+
+20. Honeypot submission is rejected/ignored appropriately.
+21. Rate limiting works.
+22. Oversized payloads are rejected.
+23. Raw server errors are never exposed publicly.
+
+### Email
+
+24. Successful submission generates an author notification when email is configured.
+25. If email sending fails after DB storage, the message still exists in CMS.
+
+### Regression
+
+26. Existing CMS works.
+27. Existing SEO works.
+28. Homepage visual design is unchanged.
+29. Four-language navigation works.
+30. TypeScript/build checks pass.
+
+---
+
+# 26. Before implementation
+
+Before writing code, briefly report:
+
+1. the proposed database schema;
+2. which email provider you recommend and why;
+3. which secrets/environment variables will be required;
+4. whether any external account must be created.
+
+Then proceed with implementation unless there is a blocker that requires my decision.
+
+---
+
+# 27. Completion report
+
+When finished, STOP.
+
+Report:
+
+1. database tables/fields added;
+2. public API endpoints added;
+3. admin API endpoints added;
+4. CMS pages/components added;
+5. email provider used;
+6. secrets I still need to configure;
+7. spam protection implemented;
+8. how email failure is handled;
+9. results of the verification tests;
+10. exact steps for manually testing both workflows.
+
+Do not proceed to another phase automatically.

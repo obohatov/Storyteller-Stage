@@ -1,5 +1,5 @@
 import { useGetAdminDashboard, getGetAdminDashboardQueryKey } from '@workspace/api-client-react';
-import { BookOpen, Drama, Globe2 } from 'lucide-react';
+import { BookOpen, Drama, Globe2, Mail, FileText } from 'lucide-react';
 import { Link } from 'wouter';
 
 export default function AdminDashboard() {
@@ -31,6 +31,9 @@ export default function AdminDashboard() {
     );
   }
 
+  // Support new message count fields (added in Phase 4)
+  const anyStats = stats as typeof stats & { newContactMessages?: number; newScriptRequests?: number };
+
   return (
     <div className="p-8 lg:p-12 max-w-6xl mx-auto space-y-12">
       <header>
@@ -38,6 +41,7 @@ export default function AdminDashboard() {
         <p className="text-lg text-stage-dark/60 font-sans">Here's the current state of your published works.</p>
       </header>
 
+      {/* Content stats */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Link href="/admin/fairy-tales">
           <div className="bg-white p-6 rounded-2xl border border-[#DCD6CC] shadow-sm hover:shadow-md hover:border-stage-yellow/50 transition-all cursor-pointer group">
@@ -72,12 +76,64 @@ export default function AdminDashboard() {
         </Link>
       </section>
 
+      {/* Messages inbox */}
+      <section>
+        <div className="flex items-center gap-3 mb-6">
+          <Mail className="w-5 h-5 text-stage-dark/40" />
+          <h2 className="text-xl font-serif font-bold text-stage-dark">Messages</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Link href="/admin/messages">
+            <div className="bg-white p-6 rounded-2xl border border-[#DCD6CC] shadow-sm hover:shadow-md hover:border-stage-mint/50 transition-all cursor-pointer group">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-[#F7F5F0] rounded-xl group-hover:bg-stage-mint/10 transition-colors">
+                  <Mail className="w-6 h-6 text-stage-mint" />
+                </div>
+                {(anyStats.newContactMessages ?? 0) > 0 && (
+                  <span className="bg-stage-mint text-white text-xs font-bold rounded-full px-2 py-1 leading-none">
+                    {anyStats.newContactMessages} new
+                  </span>
+                )}
+              </div>
+              <h2 className="text-xl font-serif font-bold text-stage-dark mb-1">Contact Messages</h2>
+              <p className="text-sm font-sans text-stage-dark/50">
+                {(anyStats.newContactMessages ?? 0) > 0
+                  ? `${anyStats.newContactMessages} unread`
+                  : 'No new messages'}
+              </p>
+            </div>
+          </Link>
+
+          <Link href="/admin/messages">
+            <div className="bg-white p-6 rounded-2xl border border-[#DCD6CC] shadow-sm hover:shadow-md hover:border-stage-pink/50 transition-all cursor-pointer group">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-[#F7F5F0] rounded-xl group-hover:bg-stage-pink/10 transition-colors">
+                  <FileText className="w-6 h-6 text-stage-pink" />
+                </div>
+                {(anyStats.newScriptRequests ?? 0) > 0 && (
+                  <span className="bg-stage-pink text-white text-xs font-bold rounded-full px-2 py-1 leading-none">
+                    {anyStats.newScriptRequests} new
+                  </span>
+                )}
+              </div>
+              <h2 className="text-xl font-serif font-bold text-stage-dark mb-1">Script Requests</h2>
+              <p className="text-sm font-sans text-stage-dark/50">
+                {(anyStats.newScriptRequests ?? 0) > 0
+                  ? `${anyStats.newScriptRequests} unread`
+                  : 'No new requests'}
+              </p>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* Translation coverage */}
       <section>
         <div className="flex items-center gap-3 mb-6">
           <Globe2 className="w-5 h-5 text-stage-dark/40" />
           <h2 className="text-xl font-serif font-bold text-stage-dark">Translation Coverage</h2>
         </div>
-        
+
         <div className="bg-white border border-[#DCD6CC] rounded-2xl overflow-hidden shadow-sm">
           <div className="divide-y divide-[#DCD6CC]">
             {stats.translationCoverage.map((cov) => (
@@ -88,14 +144,14 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <div className="font-medium text-stage-dark">
-                      {cov.locale === 'en' ? 'English' : 
-                       cov.locale === 'ua' ? 'Ukrainian' : 
-                       cov.locale === 'ru' ? 'Russian' : 
+                      {cov.locale === 'en' ? 'English' :
+                       cov.locale === 'ua' ? 'Ukrainian' :
+                       cov.locale === 'ru' ? 'Russian' :
                        cov.locale === 'nl' ? 'Dutch' : cov.locale}
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-6 text-sm font-sans">
                   <div className="text-right">
                     <div className="font-medium text-stage-mint">{cov.published}</div>
