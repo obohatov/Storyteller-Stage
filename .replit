@@ -23,4 +23,5 @@ timeoutMs = 20000
 
 [userenv.shared]
 PUBLIC_SITE_URL = "https://bohatova.art"
-CONTACT_RECIPIENT_EMAIL = "obohatov@gmail.com"
+CONTACT_RECIPIENT_EMAIL = "sonia.bohatova@gmail.com"
+CONTACT_SENDER_EMAIL = "The Storyteller's Stage <notifications@mail.bohatova.art>"

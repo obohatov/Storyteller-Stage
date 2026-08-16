@@ -12,10 +12,12 @@ const RESEND_API_URL = "https://api.resend.com/emails";
 interface SendResult {
   ok: boolean;
   reason?: string;
+  resendId?: string;
 }
 
 async function sendEmail(opts: {
   to: string;
+  replyTo: string;
   subject: string;
   html: string;
 }): Promise<SendResult> {
@@ -29,6 +31,16 @@ async function sendEmail(opts: {
     process.env.CONTACT_SENDER_EMAIL ||
     "Stage Notifications <onboarding@resend.dev>";
 
+  const payload = {
+    from,
+    to: opts.to,
+    reply_to: opts.replyTo,
+    subject: opts.subject,
+    html: opts.html,
+  };
+
+  console.log(`[email] Sending: from="${from}" to="${opts.to}" reply_to="${opts.replyTo}" subject="${opts.subject}"`);
+
   try {
     const res = await fetch(RESEND_API_URL, {
       method: "POST",
@@ -36,15 +48,20 @@ async function sendEmail(opts: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ from, to: opts.to, subject: opts.subject, html: opts.html }),
+      body: JSON.stringify(payload),
     });
 
+    const responseBody = await res.text().catch(() => "(unreadable)");
+
     if (!res.ok) {
-      const body = await res.text().catch(() => "(unreadable)");
-      console.error(`[email] Resend error ${res.status}: ${body}`);
+      console.error(`[email] Resend error ${res.status}: ${responseBody}`);
       return { ok: false, reason: "api_error" };
     }
-    return { ok: true };
+
+    let resendId: string | undefined;
+    try { resendId = (JSON.parse(responseBody) as { id?: string }).id; } catch { /* noop */ }
+    console.log(`[email] Delivered OK — Resend id: ${resendId ?? "unknown"}`);
+    return { ok: true, resendId };
   } catch (err) {
     console.error("[email] Network error while sending notification:", err);
     return { ok: false, reason: "network_error" };
@@ -87,9 +104,9 @@ export async function sendContactEmail(opts: {
   <hr style="border:none;border-top:1px solid #ddd;margin:24px 0"/>
   <p style="white-space:pre-wrap;line-height:1.6">${esc(opts.message)}</p>
   <hr style="border:none;border-top:1px solid #ddd;margin:24px 0"/>
-  <p style="font-size:12px;color:#999">Received via bohatova.art · Reply directly to ${esc(opts.email)}</p>
+  <p style="font-size:12px;color:#999">Received via bohatova.art · Hit reply to respond directly to ${esc(opts.name)}.</p>
 </div>`;
-  return sendEmail({ to: opts.to, subject, html });
+  return sendEmail({ to: opts.to, replyTo: opts.email, subject, html });
 }
 
 export async function sendScriptRequestEmail(opts: {
@@ -123,7 +140,7 @@ export async function sendScriptRequestEmail(opts: {
   <hr style="border:none;border-top:1px solid #ddd;margin:24px 0"/>
   <p style="white-space:pre-wrap;line-height:1.6">${esc(opts.message)}</p>
   <hr style="border:none;border-top:1px solid #ddd;margin:24px 0"/>
-  <p style="font-size:12px;color:#999">Received via bohatova.art · Reply directly to ${esc(opts.email)}</p>
+  <p style="font-size:12px;color:#999">Received via bohatova.art · Hit reply to respond directly to ${esc(opts.name)}.</p>
 </div>`;
-  return sendEmail({ to: opts.to, subject, html });
+  return sendEmail({ to: opts.to, replyTo: opts.email, subject, html });
 }
