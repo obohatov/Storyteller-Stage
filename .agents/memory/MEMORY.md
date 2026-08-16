@@ -1,0 +1,2 @@
+- [CMS Phase 2 architecture](cms-phase2.md) — Drizzle+Postgres CMS: content tables in lib/db, routes in api-server, admin UI in storytellers-stage/src/admin/
+- [Orval codegen quirks](orval-codegen-quirks.md) — Known issues with orval v8.23 + Zod v3: format:email/uri → z.email()/z.url() breaks; types folder collides with Zod consts; how to fix

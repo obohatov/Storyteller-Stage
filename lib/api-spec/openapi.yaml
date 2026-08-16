@@ -1,22 +1,31 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: The Storyteller's Stage – API specification
 servers:
   - url: /api
     description: Base API path
+
 tags:
   - name: health
     description: Health operations
+  - name: Auth
+    description: Browser authentication endpoints
+  - name: Storage
+    description: Object storage upload and serving endpoints
+  - name: Public
+    description: Public content endpoints (no auth required)
+  - name: Admin
+    description: Admin CMS endpoints (auth required)
+
 paths:
+  # ─── Health ───────────────────────────────────────────────────────────────
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,8 +33,889 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── Auth ─────────────────────────────────────────────────────────────────
+  /auth/user:
+    get:
+      tags: [Auth]
+      operationId: getCurrentAuthUser
+      summary: Get the currently authenticated user
+      parameters:
+        - $ref: "#/components/parameters/AuthorizationSessionHeader"
+        - $ref: "#/components/parameters/SessionCookie"
+      responses:
+        "200":
+          description: Auth status resolved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUserEnvelope"
+  /login:
+    get:
+      tags: [Auth]
+      operationId: beginBrowserLogin
+      summary: Start the browser OIDC login flow
+      parameters:
+        - name: returnTo
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect to the OIDC authorization endpoint
+  /callback:
+    get:
+      tags: [Auth]
+      operationId: handleBrowserLoginCallback
+      summary: Complete the browser OIDC login flow
+      parameters:
+        - name: code
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: iss
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect to returnTo on success
+  /logout:
+    get:
+      tags: [Auth]
+      operationId: logoutBrowserSession
+      summary: Clear the session and begin OIDC logout
+      parameters:
+        - $ref: "#/components/parameters/AuthorizationSessionHeader"
+        - $ref: "#/components/parameters/SessionCookie"
+        - name: returnTo
+          in: query
+          required: false
+          schema:
+            type: string
+            default: /
+      responses:
+        "302":
+          description: Redirect to OIDC logout
+
+  # ─── Storage ──────────────────────────────────────────────────────────────
+  /storage/uploads/request-url:
+    post:
+      tags: [Storage]
+      operationId: requestUploadUrl
+      summary: Request a presigned URL for file upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadUrlRequest"
+      responses:
+        "200":
+          description: Presigned upload URL generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadUrlResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: Failed to generate upload URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /storage/public-objects/{filePath}:
+    get:
+      tags: [Storage]
+      operationId: getPublicObject
+      summary: Serve a public asset
+      parameters:
+        - name: filePath
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Object content
+          content:
+            "*/*":
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /storage/objects/{objectPath}:
+    get:
+      tags: [Storage]
+      operationId: getStorageObject
+      summary: Serve a private object entity
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Object content
+          content:
+            "*/*":
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  # ─── Public Content ────────────────────────────────────────────────────────
+  /public/fairy-tales:
+    get:
+      tags: [Public]
+      operationId: listPublicFairyTales
+      summary: List published fairy tales for a locale
+      parameters:
+        - name: locale
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of published fairy tales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicFairyTaleItem"
+  /public/fairy-tales/{slug}:
+    get:
+      tags: [Public]
+      operationId: getPublicFairyTale
+      summary: Get a published fairy tale by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: locale
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Fairy tale detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicFairyTaleDetail"
+        "404":
+          description: Not found or not published in this locale
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentNotAvailable"
+  /public/plays:
+    get:
+      tags: [Public]
+      operationId: listPublicPlays
+      summary: List published plays for a locale
+      parameters:
+        - name: locale
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of published plays
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicPlayItem"
+  /public/plays/{slug}:
+    get:
+      tags: [Public]
+      operationId: getPublicPlay
+      summary: Get a published play by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: locale
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Play detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicPlayDetail"
+        "404":
+          description: Not found or not published in this locale
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentNotAvailable"
+  /public/about/{locale}:
+    get:
+      tags: [Public]
+      operationId: getPublicAbout
+      summary: Get the About bio for a locale
+      parameters:
+        - name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: About content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicAbout"
+        "404":
+          description: Not available in this locale
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentNotAvailable"
+
+  # ─── Admin – Dashboard ────────────────────────────────────────────────────
+  /admin/dashboard:
+    get:
+      tags: [Admin]
+      operationId: getAdminDashboard
+      summary: Get CMS dashboard stats
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  # ─── Admin – Fairy Tales ──────────────────────────────────────────────────
+  /admin/fairy-tales:
+    get:
+      tags: [Admin]
+      operationId: listAdminFairyTales
+      summary: List all fairy tales with translation status
+      responses:
+        "200":
+          description: All fairy tales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminFairyTaleSummary"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    post:
+      tags: [Admin]
+      operationId: createAdminFairyTale
+      summary: Create a new fairy tale
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FairyTaleBaseInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminFairyTaleDetail"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /admin/fairy-tales/{id}:
+    get:
+      tags: [Admin]
+      operationId: getAdminFairyTale
+      summary: Get a fairy tale with all its translations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Fairy tale with all translations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminFairyTaleDetail"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    patch:
+      tags: [Admin]
+      operationId: updateAdminFairyTale
+      summary: Update fairy tale base metadata
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FairyTaleBaseInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminFairyTaleDetail"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    delete:
+      tags: [Admin]
+      operationId: deleteAdminFairyTale
+      summary: Delete a fairy tale and all its translations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /admin/fairy-tales/{id}/translations/{locale}:
+    put:
+      tags: [Admin]
+      operationId: upsertFairyTaleTranslation
+      summary: Create or update a translation for a fairy tale
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FairyTaleTranslationInput"
+      responses:
+        "200":
+          description: Translation saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminFairyTaleDetail"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /admin/fairy-tales/{id}/translations/{locale}/publish:
+    post:
+      tags: [Admin]
+      operationId: publishFairyTaleTranslation
+      summary: Publish a translation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Published
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminFairyTaleDetail"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Translation not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /admin/fairy-tales/{id}/translations/{locale}/unpublish:
+    post:
+      tags: [Admin]
+      operationId: unpublishFairyTaleTranslation
+      summary: Unpublish a translation (back to draft)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Unpublished
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminFairyTaleDetail"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Translation not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  # ─── Admin – Plays ────────────────────────────────────────────────────────
+  /admin/plays:
+    get:
+      tags: [Admin]
+      operationId: listAdminPlays
+      summary: List all plays with translation status
+      responses:
+        "200":
+          description: All plays
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminPlaySummary"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    post:
+      tags: [Admin]
+      operationId: createAdminPlay
+      summary: Create a new play
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayBaseInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminPlayDetail"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /admin/plays/{id}:
+    get:
+      tags: [Admin]
+      operationId: getAdminPlay
+      summary: Get a play with all its translations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Play with all translations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminPlayDetail"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    patch:
+      tags: [Admin]
+      operationId: updateAdminPlay
+      summary: Update play base metadata
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayBaseInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminPlayDetail"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    delete:
+      tags: [Admin]
+      operationId: deleteAdminPlay
+      summary: Delete a play and all its translations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /admin/plays/{id}/translations/{locale}:
+    put:
+      tags: [Admin]
+      operationId: upsertPlayTranslation
+      summary: Create or update a translation for a play
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayTranslationInput"
+      responses:
+        "200":
+          description: Translation saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminPlayDetail"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /admin/plays/{id}/translations/{locale}/publish:
+    post:
+      tags: [Admin]
+      operationId: publishPlayTranslation
+      summary: Publish a play translation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Published
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminPlayDetail"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Translation not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /admin/plays/{id}/translations/{locale}/unpublish:
+    post:
+      tags: [Admin]
+      operationId: unpublishPlayTranslation
+      summary: Unpublish a play translation (back to draft)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+        - name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Unpublished
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminPlayDetail"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: Translation not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  # ─── Admin – About ────────────────────────────────────────────────────────
+  /admin/about/{locale}:
+    get:
+      tags: [Admin]
+      operationId: getAdminAbout
+      summary: Get the About bio for a locale (admin)
+      parameters:
+        - name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: About content for this locale
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminAbout"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    put:
+      tags: [Admin]
+      operationId: saveAdminAbout
+      summary: Create or update the About bio for a locale
+      parameters:
+        - name: locale
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AboutInput"
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminAbout"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
 components:
+  parameters:
+    AuthorizationSessionHeader:
+      name: Authorization
+      in: header
+      required: false
+      description: "Opaque session token — Bearer <sid>"
+      schema:
+        type: string
+    SessionCookie:
+      name: sid
+      in: cookie
+      required: false
+      description: Browser session cookie
+      schema:
+        type: string
+
   schemas:
+    # ── Shared ────────────────────────────────────────────────────────────────
     HealthStatus:
       type: object
       properties:
@@ -34,3 +924,576 @@ components:
       required:
         - status
 
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    ContentNotAvailable:
+      type: object
+      required: [available, reason]
+      properties:
+        available:
+          type: boolean
+          const: false
+        reason:
+          type: string
+
+    # ── Auth ──────────────────────────────────────────────────────────────────
+    AuthUser:
+      type: object
+      required: [id, email, firstName, lastName, profileImageUrl]
+      properties:
+        id:
+          type: string
+        email:
+          type: [string, "null"]
+        firstName:
+          type: [string, "null"]
+        lastName:
+          type: [string, "null"]
+        profileImageUrl:
+          type: [string, "null"]
+
+    AuthUserEnvelope:
+      type: object
+      required: [user]
+      properties:
+        user:
+          oneOf:
+            - $ref: "#/components/schemas/AuthUser"
+            - type: "null"
+
+    # ── Storage ───────────────────────────────────────────────────────────────
+    UploadUrlRequest:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        size:
+          type: number
+          minimum: 1
+        contentType:
+          type: string
+          minLength: 1
+
+    UploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL:
+          type: string
+        objectPath:
+          type: string
+
+    # ── Translation status ────────────────────────────────────────────────────
+    TranslationStatus:
+      type: object
+      required: [locale, status]
+      properties:
+        locale:
+          type: string
+        status:
+          type: string
+          description: "draft | published | archived | missing"
+        publishedAt:
+          type: [string, "null"]
+          format: date-time
+
+    # ── Fairy Tales – Admin ───────────────────────────────────────────────────
+    AdminFairyTaleSummary:
+      type: object
+      required: [id, slug, createdAt, updatedAt, translations]
+      properties:
+        id:
+          type: number
+        slug:
+          type: string
+        ageRecommendation:
+          type: [string, "null"]
+        estimatedReadingTime:
+          type: [number, "null"]
+        themes:
+          type: [array, "null"]
+          items:
+            type: string
+        coverImagePath:
+          type: [string, "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        translations:
+          type: array
+          items:
+            $ref: "#/components/schemas/TranslationStatus"
+
+    AdminFairyTaleTranslation:
+      type: object
+      required: [id, fairyTaleId, locale, status, title, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        fairyTaleId:
+          type: number
+        locale:
+          type: string
+        status:
+          type: string
+        title:
+          type: string
+        blurb:
+          type: [string, "null"]
+        body:
+          type: [string, "null"]
+        seoTitle:
+          type: [string, "null"]
+        seoDescription:
+          type: [string, "null"]
+        publishedAt:
+          type: [string, "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AdminFairyTaleDetail:
+      type: object
+      required: [id, slug, createdAt, updatedAt, translations]
+      properties:
+        id:
+          type: number
+        slug:
+          type: string
+        ageRecommendation:
+          type: [string, "null"]
+        estimatedReadingTime:
+          type: [number, "null"]
+        themes:
+          type: [array, "null"]
+          items:
+            type: string
+        coverImagePath:
+          type: [string, "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        translations:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminFairyTaleTranslation"
+
+    FairyTaleBaseInput:
+      type: object
+      required: [slug]
+      properties:
+        slug:
+          type: string
+          minLength: 1
+        ageRecommendation:
+          type: [string, "null"]
+        estimatedReadingTime:
+          type: [number, "null"]
+        themes:
+          type: [array, "null"]
+          items:
+            type: string
+        coverImagePath:
+          type: [string, "null"]
+
+    FairyTaleTranslationInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        blurb:
+          type: [string, "null"]
+        body:
+          type: [string, "null"]
+        seoTitle:
+          type: [string, "null"]
+        seoDescription:
+          type: [string, "null"]
+
+    # ── Fairy Tales – Public ──────────────────────────────────────────────────
+    PublicFairyTaleItem:
+      type: object
+      required: [slug, title, locale]
+      properties:
+        slug:
+          type: string
+        title:
+          type: string
+        blurb:
+          type: [string, "null"]
+        locale:
+          type: string
+        ageRecommendation:
+          type: [string, "null"]
+        estimatedReadingTime:
+          type: [number, "null"]
+        themes:
+          type: [array, "null"]
+          items:
+            type: string
+        coverImagePath:
+          type: [string, "null"]
+        publishedAt:
+          type: [string, "null"]
+          format: date-time
+
+    PublicFairyTaleDetail:
+      type: object
+      required: [slug, title, locale, available]
+      properties:
+        available:
+          type: boolean
+          const: true
+        slug:
+          type: string
+        title:
+          type: string
+        blurb:
+          type: [string, "null"]
+        body:
+          type: [string, "null"]
+        locale:
+          type: string
+        ageRecommendation:
+          type: [string, "null"]
+        estimatedReadingTime:
+          type: [number, "null"]
+        themes:
+          type: [array, "null"]
+          items:
+            type: string
+        coverImagePath:
+          type: [string, "null"]
+        publishedAt:
+          type: [string, "null"]
+          format: date-time
+        availableLocales:
+          type: array
+          items:
+            type: string
+
+    # ── Plays – Admin ─────────────────────────────────────────────────────────
+    AdminPlaySummary:
+      type: object
+      required: [id, slug, createdAt, updatedAt, translations]
+      properties:
+        id:
+          type: number
+        slug:
+          type: string
+        genre:
+          type: [string, "null"]
+        targetAudience:
+          type: [string, "null"]
+        estimatedDuration:
+          type: [number, "null"]
+        castSize:
+          type: [string, "null"]
+        scriptAvailability:
+          type: string
+        stagingComplexity:
+          type: [string, "null"]
+        productionHistory:
+          type: [string, "null"]
+        awards:
+          type: [string, "null"]
+        coverImagePath:
+          type: [string, "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        translations:
+          type: array
+          items:
+            $ref: "#/components/schemas/TranslationStatus"
+
+    AdminPlayTranslation:
+      type: object
+      required: [id, playId, locale, status, title, createdAt, updatedAt]
+      properties:
+        id:
+          type: number
+        playId:
+          type: number
+        locale:
+          type: string
+        status:
+          type: string
+        title:
+          type: string
+        logline:
+          type: [string, "null"]
+        synopsis:
+          type: [string, "null"]
+        excerpt:
+          type: [string, "null"]
+        stagingNotes:
+          type: [string, "null"]
+        productionInfo:
+          type: [string, "null"]
+        seoTitle:
+          type: [string, "null"]
+        seoDescription:
+          type: [string, "null"]
+        publishedAt:
+          type: [string, "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AdminPlayDetail:
+      type: object
+      required: [id, slug, scriptAvailability, createdAt, updatedAt, translations]
+      properties:
+        id:
+          type: number
+        slug:
+          type: string
+        genre:
+          type: [string, "null"]
+        targetAudience:
+          type: [string, "null"]
+        estimatedDuration:
+          type: [number, "null"]
+        castSize:
+          type: [string, "null"]
+        scriptAvailability:
+          type: string
+        stagingComplexity:
+          type: [string, "null"]
+        productionHistory:
+          type: [string, "null"]
+        awards:
+          type: [string, "null"]
+        coverImagePath:
+          type: [string, "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        translations:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminPlayTranslation"
+
+    PlayBaseInput:
+      type: object
+      required: [slug, scriptAvailability]
+      properties:
+        slug:
+          type: string
+          minLength: 1
+        genre:
+          type: [string, "null"]
+        targetAudience:
+          type: [string, "null"]
+        estimatedDuration:
+          type: [number, "null"]
+        castSize:
+          type: [string, "null"]
+        scriptAvailability:
+          type: string
+        stagingComplexity:
+          type: [string, "null"]
+        productionHistory:
+          type: [string, "null"]
+        awards:
+          type: [string, "null"]
+        coverImagePath:
+          type: [string, "null"]
+
+    PlayTranslationInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        logline:
+          type: [string, "null"]
+        synopsis:
+          type: [string, "null"]
+        excerpt:
+          type: [string, "null"]
+        stagingNotes:
+          type: [string, "null"]
+        productionInfo:
+          type: [string, "null"]
+        seoTitle:
+          type: [string, "null"]
+        seoDescription:
+          type: [string, "null"]
+
+    # ── Plays – Public ────────────────────────────────────────────────────────
+    PublicPlayItem:
+      type: object
+      required: [slug, title, locale]
+      properties:
+        slug:
+          type: string
+        title:
+          type: string
+        logline:
+          type: [string, "null"]
+        locale:
+          type: string
+        genre:
+          type: [string, "null"]
+        targetAudience:
+          type: [string, "null"]
+        estimatedDuration:
+          type: [number, "null"]
+        castSize:
+          type: [string, "null"]
+        coverImagePath:
+          type: [string, "null"]
+        publishedAt:
+          type: [string, "null"]
+          format: date-time
+
+    PublicPlayDetail:
+      type: object
+      required: [slug, title, locale, scriptAvailability, available]
+      properties:
+        available:
+          type: boolean
+          const: true
+        slug:
+          type: string
+        title:
+          type: string
+        logline:
+          type: [string, "null"]
+        synopsis:
+          type: [string, "null"]
+        excerpt:
+          type: [string, "null"]
+        locale:
+          type: string
+        genre:
+          type: [string, "null"]
+        targetAudience:
+          type: [string, "null"]
+        estimatedDuration:
+          type: [number, "null"]
+        castSize:
+          type: [string, "null"]
+        scriptAvailability:
+          type: string
+        stagingComplexity:
+          type: [string, "null"]
+        productionHistory:
+          type: [string, "null"]
+        awards:
+          type: [string, "null"]
+        stagingNotes:
+          type: [string, "null"]
+        productionInfo:
+          type: [string, "null"]
+        coverImagePath:
+          type: [string, "null"]
+        publishedAt:
+          type: [string, "null"]
+          format: date-time
+        availableLocales:
+          type: array
+          items:
+            type: string
+
+    # ── About ─────────────────────────────────────────────────────────────────
+    PublicAbout:
+      type: object
+      required: [locale, available]
+      properties:
+        available:
+          type: boolean
+          const: true
+        locale:
+          type: string
+        body:
+          type: [string, "null"]
+        authorPhotoPath:
+          type: [string, "null"]
+
+    AdminAbout:
+      type: object
+      required: [locale, updatedAt]
+      properties:
+        locale:
+          type: string
+        body:
+          type: [string, "null"]
+        authorPhotoPath:
+          type: [string, "null"]
+        updatedAt:
+          type: string
+          format: date-time
+
+    AboutInput:
+      type: object
+      properties:
+        body:
+          type: [string, "null"]
+        authorPhotoPath:
+          type: [string, "null"]
+
+    # ── Dashboard ─────────────────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      required:
+        [
+          publishedFairyTales,
+          draftFairyTales,
+          publishedPlays,
+          draftPlays,
+          translationCoverage,
+        ]
+      properties:
+        publishedFairyTales:
+          type: number
+        draftFairyTales:
+          type: number
+        publishedPlays:
+          type: number
+        draftPlays:
+          type: number
+        translationCoverage:
+          type: array
+          items:
+            type: object
+            required: [locale, published, draft]
+            properties:
+              locale:
+                type: string
+              published:
+                type: number
+              draft:
+                type: number

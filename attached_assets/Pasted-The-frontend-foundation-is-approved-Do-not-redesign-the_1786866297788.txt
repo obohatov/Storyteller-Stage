@@ -1,0 +1,356 @@
+The frontend foundation is approved. Do not redesign the public website.
+
+Now implement **Phase 2: real database-driven content and a minimal private CMS for the author**.
+
+The goal is simple:
+
+> The author must be able to create, translate, edit, preview, publish and unpublish fairy tales, plays and the About biography without touching code.
+
+Keep the existing React/Vite frontend, routing, animations, typography, palette and public page layouts intact.
+
+## 1. Backend and database
+
+Use the existing project stack:
+
+* React + Vite frontend
+* Express backend
+* PostgreSQL database
+
+Replace the currently hard-coded placeholder works with database-driven content.
+
+Do not add an external CMS such as WordPress, Strapi, Sanity, Contentful, etc.
+
+Build a small CMS directly into this application.
+
+---
+
+## 2. Admin area
+
+Create a private admin area at:
+
+`/admin`
+
+Public visitors must never need an account.
+
+The admin area is only for the site owner/author.
+
+Use Replit Auth if it can be integrated cleanly with this project.
+
+Protect every `/admin` route and every content-management API endpoint.
+
+If Replit Auth cannot be used appropriately, stop and explain the recommended alternative before implementing another authentication system.
+
+Do not build public user registration.
+
+---
+
+## 3. Admin navigation
+
+The CMS should have a simple structure:
+
+### Dashboard
+
+Show only useful information:
+
+* number of published fairy tales
+* number of draft fairy tales
+* number of published plays
+* number of draft plays
+* translation completeness where useful
+
+### Content
+
+* Fairy Tales
+* Plays
+* About
+
+Do not create analytics, complex roles, workflows, comments, user management or other enterprise CMS features.
+
+---
+
+# 4. Languages
+
+The site has FOUR languages:
+
+* English — `en`
+* Ukrainian — `uk`
+* Russian — `ru`
+* Dutch — `nl`
+
+A work is **one content object with multiple translations**, not four independent copies.
+
+Example:
+
+Fairy Tale ID 12
+
+* EN translation
+* UK translation
+* RU translation
+* NL translation
+
+Translations may be incomplete.
+
+For example:
+
+* RU — Published
+* UK — Draft
+* EN — Missing
+* NL — Missing
+
+The author must be allowed to publish an available translation without waiting for all four languages.
+
+In the admin UI, clearly show translation status for all four languages.
+
+Use tabs or another very clear UI:
+
+`EN | UA | RU | NL`
+
+Remember:
+
+* database / routing locale code for Ukrainian = `uk`
+* display label may remain `UA`
+
+---
+
+# 5. Fairy Tale content model
+
+Create an appropriate PostgreSQL structure using separate base content and translation records.
+
+A fairy tale should support shared metadata such as:
+
+* id
+* slug
+* status / publication state
+* age recommendation
+* estimated reading time
+* themes / tags
+* optional cover image reference
+* created_at
+* updated_at
+* published_at
+
+Each language translation should support:
+
+* title
+* short description / blurb
+* full story text
+* optional SEO title
+* optional SEO description
+* translation publication status
+
+The full story editor should be suitable for long-form literary text.
+
+Support at minimum:
+
+* paragraphs
+* bold
+* italic
+* headings
+* block quotes
+* horizontal / scene break
+* links
+
+Do not turn it into a complicated page builder.
+
+---
+
+# 6. Play content model
+
+A play should support shared metadata such as:
+
+* id
+* slug
+* genre
+* target audience
+* estimated duration
+* cast size
+* staging notes / staging complexity where appropriate
+* production history
+* awards / festivals
+* created_at
+* updated_at
+* published_at
+
+Each language translation should support:
+
+* title
+* logline
+* synopsis
+* translated staging notes where needed
+* translated production information where needed
+* optional excerpt
+* optional SEO title
+* optional SEO description
+* translation publication status
+
+Also add:
+
+### Script availability
+
+One of:
+
+* Full text public
+* Excerpt only
+* Full script available on request
+
+Do not expose a private full script publicly when the setting is “Excerpt only” or “Available on request”.
+
+---
+
+# 7. About the Author
+
+Move the About page content out of hard-coded translations and into the CMS.
+
+The author should be able to edit the biography independently in:
+
+* EN
+* UK
+* RU
+* NL
+
+Do not force all translations to exist before publishing one.
+
+Keep the current public About page visual design.
+
+---
+
+# 8. CMS editing workflow
+
+For fairy tales and plays provide:
+
+* Create
+* Edit
+* Save Draft
+* Preview
+* Publish
+* Unpublish
+* Archive or Delete
+
+The most important workflow is:
+
+`Draft → Preview → Publish`
+
+Preview must show the content using the **real public-site design**, not just an admin text preview.
+
+The preview must not become publicly discoverable or appear in public listings before publication.
+
+Ask for confirmation before destructive deletion.
+
+---
+
+# 9. Slugs
+
+Generate a sensible slug automatically from the title when a work is first created.
+
+Allow the admin to edit it.
+
+Slugs must be unique within the relevant content type.
+
+Do not automatically change an existing published slug simply because the title was edited later.
+
+---
+
+# 10. Public frontend integration
+
+Connect the existing public pages to PostgreSQL.
+
+Existing routes must continue to work:
+
+`/:locale/plays`
+
+`/:locale/plays/:slug`
+
+`/:locale/fairy-tales`
+
+`/:locale/fairy-tales/:slug`
+
+`/:locale/about`
+
+Only show content that is published in the requested language.
+
+If a visitor changes language while viewing a specific work:
+
+* stay on the same work if that translation exists and is published
+* if that translation does not exist, clearly indicate that the work is not yet available in that language rather than silently showing the wrong language
+
+Keep the current approved visual design.
+
+Do not redesign cards, headings, navigation, split-screen home, colors or animations.
+
+---
+
+# 11. Images and files
+
+If cover-image upload is implemented in this phase, use persistent application/object storage appropriate for Replit.
+
+Do not store uploaded media only in the deployment filesystem.
+
+For now the media requirements are deliberately minimal:
+
+* optional fairy-tale cover image
+* optional author photo
+* optional play image/poster
+
+Do not build a complex Digital Asset Management system.
+
+---
+
+# 12. Placeholder content
+
+The current demo titles, biographies and descriptions are placeholders.
+
+Migrate them only as seed/demo content if useful.
+
+Clearly keep them identifiable as demo content.
+
+Do not treat:
+
+* author location
+* biography
+* play titles
+* fairy-tale titles
+* production history
+
+as factual real-world information.
+
+---
+
+# 13. Do NOT implement yet
+
+Do NOT implement these follow-up features in this phase:
+
+* email delivery from the Contact form
+* newsletter
+* multilingual SEO / sitemap work
+* social login for public users
+* payments
+* comments
+* public reader accounts
+* analytics dashboard
+* AI translation
+* automatic translation
+* complex CMS roles or approval workflows
+
+Those will be separate phases.
+
+---
+
+# 14. Definition of done
+
+This phase is complete when I can:
+
+1. Log into `/admin`.
+2. Create one fairy tale.
+3. Add an RU version.
+4. Save it as draft.
+5. Preview it in the real public Fairy Tale design.
+6. Publish the RU translation.
+7. See it appear automatically in `/ru/fairy-tales`.
+8. Add an English translation later without creating a second fairy-tale record.
+9. Create and publish a play using the same multilingual principle.
+10. Edit the About biography in one language from the CMS.
+11. Refresh/restart the app and confirm all data remains stored in PostgreSQL.
+
+Before starting implementation, briefly summarize the database schema and implementation plan.
+
+After implementation, **stop and show me what was changed and how to test the CMS. Do not proceed automatically to SEO or contact-form delivery.**

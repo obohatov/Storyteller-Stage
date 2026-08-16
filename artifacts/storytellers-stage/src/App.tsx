@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, lazy, Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
@@ -20,12 +20,43 @@ import { TaleDetailPage } from '@/pages/TaleDetailPage';
 import { AboutPage } from '@/pages/AboutPage';
 import { ContactPage } from '@/pages/ContactPage';
 
+import { AdminLayout } from '@/admin/AdminLayout';
+const AdminDashboard = lazy(() => import('@/admin/AdminDashboard'));
+const AdminFairyTalesList = lazy(() => import('@/admin/AdminFairyTalesList'));
+const AdminFairyTaleEdit = lazy(() => import('@/admin/AdminFairyTaleEdit'));
+const AdminPlaysList = lazy(() => import('@/admin/AdminPlaysList'));
+const AdminPlayEdit = lazy(() => import('@/admin/AdminPlayEdit'));
+const AdminAbout = lazy(() => import('@/admin/AdminAbout'));
+
 const queryClient = new QueryClient();
+
+function AdminRoutes() {
+  return (
+    <AdminLayout>
+      <Suspense fallback={<div className="p-8 text-stage-dark/50">Loading...</div>}>
+        <Switch>
+          <Route path="/admin" component={AdminDashboard} />
+          <Route path="/admin/fairy-tales" component={AdminFairyTalesList} />
+          <Route path="/admin/fairy-tales/:id" component={AdminFairyTaleEdit} />
+          <Route path="/admin/plays" component={AdminPlaysList} />
+          <Route path="/admin/plays/:id" component={AdminPlayEdit} />
+          <Route path="/admin/about" component={AdminAbout} />
+          <Route component={NotFound} />
+        </Switch>
+      </Suspense>
+    </AdminLayout>
+  );
+}
 
 function Router() {
   return (
     <RoutedErrorBoundary>
       <Switch>
+        {/* Admin Routes */}
+        <Route path="/admin" nest>
+          <AdminRoutes />
+        </Route>
+
         {/* Redirect root to English */}
         <Route path="/">
           <Redirect to="/en" />
