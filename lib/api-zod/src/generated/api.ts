@@ -128,6 +128,7 @@ export const ListPublicFairyTalesResponseItem = zod.object({
   "estimatedReadingTime": zod.number().nullish(),
   "themes": zod.array(zod.string()).nullish(),
   "coverImagePath": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish()
 })
 export const ListPublicFairyTalesResponse = zod.array(ListPublicFairyTalesResponseItem)
@@ -155,6 +156,7 @@ export const GetPublicFairyTaleResponse = zod.object({
   "estimatedReadingTime": zod.number().nullish(),
   "themes": zod.array(zod.string()).nullish(),
   "coverImagePath": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "availableLocales": zod.array(zod.string()).optional()
 })
@@ -177,6 +179,7 @@ export const ListPublicPlaysResponseItem = zod.object({
   "estimatedDuration": zod.number().nullish(),
   "castSize": zod.string().nullish(),
   "coverImagePath": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish()
 })
 export const ListPublicPlaysResponse = zod.array(ListPublicPlaysResponseItem)
@@ -212,6 +215,7 @@ export const GetPublicPlayResponse = zod.object({
   "stagingNotes": zod.string().nullish(),
   "productionInfo": zod.string().nullish(),
   "coverImagePath": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "availableLocales": zod.array(zod.string()).optional()
 })
@@ -228,7 +232,8 @@ export const GetPublicAboutResponse = zod.object({
   "available": zod.literal(true),
   "locale": zod.string(),
   "body": zod.string().nullish(),
-  "authorPhotoPath": zod.string().nullish()
+  "authorPhotoPath": zod.string().nullish(),
+  "authorPhotoAlt": zod.string().nullish()
 })
 
 
@@ -302,6 +307,7 @@ export const CreateAdminFairyTaleResponse = zod.object({
   "body": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
   "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -335,6 +341,7 @@ export const GetAdminFairyTaleResponse = zod.object({
   "body": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
   "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -379,6 +386,7 @@ export const UpdateAdminFairyTaleResponse = zod.object({
   "body": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
   "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -412,7 +420,8 @@ export const UpsertFairyTaleTranslationBody = zod.object({
   "blurb": zod.string().nullish(),
   "body": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
-  "seoDescription": zod.string().nullish()
+  "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish()
 })
 
 export const UpsertFairyTaleTranslationResponse = zod.object({
@@ -434,6 +443,7 @@ export const UpsertFairyTaleTranslationResponse = zod.object({
   "body": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
   "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -468,6 +478,7 @@ export const PublishFairyTaleTranslationResponse = zod.object({
   "body": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
   "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -502,6 +513,7 @@ export const UnpublishFairyTaleTranslationResponse = zod.object({
   "body": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
   "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -581,6 +593,7 @@ export const CreateAdminPlayResponse = zod.object({
   "productionInfo": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
   "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -622,6 +635,7 @@ export const GetAdminPlayResponse = zod.object({
   "productionInfo": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
   "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -679,6 +693,7 @@ export const UpdateAdminPlayResponse = zod.object({
   "productionInfo": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
   "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -715,7 +730,8 @@ export const UpsertPlayTranslationBody = zod.object({
   "stagingNotes": zod.string().nullish(),
   "productionInfo": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
-  "seoDescription": zod.string().nullish()
+  "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish()
 })
 
 export const UpsertPlayTranslationResponse = zod.object({
@@ -745,6 +761,7 @@ export const UpsertPlayTranslationResponse = zod.object({
   "productionInfo": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
   "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -787,6 +804,7 @@ export const PublishPlayTranslationResponse = zod.object({
   "productionInfo": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
   "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -829,6 +847,7 @@ export const UnpublishPlayTranslationResponse = zod.object({
   "productionInfo": zod.string().nullish(),
   "seoTitle": zod.string().nullish(),
   "seoDescription": zod.string().nullish(),
+  "coverImageAlt": zod.string().nullish(),
   "publishedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -847,6 +866,7 @@ export const GetAdminAboutResponse = zod.object({
   "locale": zod.string(),
   "body": zod.string().nullish(),
   "authorPhotoPath": zod.string().nullish(),
+  "authorPhotoAlt": zod.string().nullish(),
   "updatedAt": zod.coerce.date()
 })
 
@@ -860,13 +880,15 @@ export const SaveAdminAboutParams = zod.object({
 
 export const SaveAdminAboutBody = zod.object({
   "body": zod.string().nullish(),
-  "authorPhotoPath": zod.string().nullish()
+  "authorPhotoPath": zod.string().nullish(),
+  "authorPhotoAlt": zod.string().nullish()
 })
 
 export const SaveAdminAboutResponse = zod.object({
   "locale": zod.string(),
   "body": zod.string().nullish(),
   "authorPhotoPath": zod.string().nullish(),
+  "authorPhotoAlt": zod.string().nullish(),
   "updatedAt": zod.coerce.date()
 })
 

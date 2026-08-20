@@ -49,7 +49,8 @@ router.get("/admin/messages", async (req: Request, res: Response): Promise<void>
 // ── GET /api/admin/messages/:id ───────────────────────────────────────────────
 
 router.get("/admin/messages/:id", async (req: Request, res: Response): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = parseInt(rawId ?? "", 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id." }); return; }
 
   // Fetch the message itself
@@ -95,7 +96,8 @@ router.get("/admin/messages/:id", async (req: Request, res: Response): Promise<v
 // ── PATCH /api/admin/messages/:id ─────────────────────────────────────────────
 
 router.patch("/admin/messages/:id", async (req: Request, res: Response): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = parseInt(rawId ?? "", 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id." }); return; }
 
   const { status } = req.body ?? {};
@@ -117,7 +119,8 @@ router.patch("/admin/messages/:id", async (req: Request, res: Response): Promise
 // ── DELETE /api/admin/messages/:id ────────────────────────────────────────────
 
 router.delete("/admin/messages/:id", async (req: Request, res: Response): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = parseInt(rawId ?? "", 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id." }); return; }
 
   const [deleted] = await db

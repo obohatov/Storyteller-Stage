@@ -1056,6 +1056,8 @@ components:
           type: [string, "null"]
         seoDescription:
           type: [string, "null"]
+        coverImageAlt:
+          type: [string, "null"]
         publishedAt:
           type: [string, "null"]
           format: date-time
@@ -1128,6 +1130,8 @@ components:
           type: [string, "null"]
         seoDescription:
           type: [string, "null"]
+        coverImageAlt:
+          type: [string, "null"]
 
     # ── Fairy Tales – Public ──────────────────────────────────────────────────
     PublicFairyTaleItem:
@@ -1151,6 +1155,8 @@ components:
           items:
             type: string
         coverImagePath:
+          type: [string, "null"]
+        coverImageAlt:
           type: [string, "null"]
         publishedAt:
           type: [string, "null"]
@@ -1182,6 +1188,8 @@ components:
           items:
             type: string
         coverImagePath:
+          type: [string, "null"]
+        coverImageAlt:
           type: [string, "null"]
         publishedAt:
           type: [string, "null"]
@@ -1256,6 +1264,8 @@ components:
         seoTitle:
           type: [string, "null"]
         seoDescription:
+          type: [string, "null"]
+        coverImageAlt:
           type: [string, "null"]
         publishedAt:
           type: [string, "null"]
@@ -1351,6 +1361,8 @@ components:
           type: [string, "null"]
         seoDescription:
           type: [string, "null"]
+        coverImageAlt:
+          type: [string, "null"]
 
     # ── Plays – Public ────────────────────────────────────────────────────────
     PublicPlayItem:
@@ -1374,6 +1386,8 @@ components:
         castSize:
           type: [string, "null"]
         coverImagePath:
+          type: [string, "null"]
+        coverImageAlt:
           type: [string, "null"]
         publishedAt:
           type: [string, "null"]
@@ -1420,6 +1434,8 @@ components:
           type: [string, "null"]
         coverImagePath:
           type: [string, "null"]
+        coverImageAlt:
+          type: [string, "null"]
         publishedAt:
           type: [string, "null"]
           format: date-time
@@ -1442,6 +1458,8 @@ components:
           type: [string, "null"]
         authorPhotoPath:
           type: [string, "null"]
+        authorPhotoAlt:
+          type: [string, "null"]
 
     AdminAbout:
       type: object
@@ -1453,6 +1471,8 @@ components:
           type: [string, "null"]
         authorPhotoPath:
           type: [string, "null"]
+        authorPhotoAlt:
+          type: [string, "null"]
         updatedAt:
           type: string
           format: date-time
@@ -1463,6 +1483,8 @@ components:
         body:
           type: [string, "null"]
         authorPhotoPath:
+          type: [string, "null"]
+        authorPhotoAlt:
           type: [string, "null"]
 
     # ── Dashboard ─────────────────────────────────────────────────────────────

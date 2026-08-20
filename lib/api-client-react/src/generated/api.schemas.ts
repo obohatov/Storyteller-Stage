@@ -87,6 +87,8 @@ export interface AdminFairyTaleTranslation {
   /** @nullable */
   seoDescription?: string | null;
   /** @nullable */
+  coverImageAlt?: string | null;
+  /** @nullable */
   publishedAt?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -132,6 +134,8 @@ export interface FairyTaleTranslationInput {
   seoTitle?: string | null;
   /** @nullable */
   seoDescription?: string | null;
+  /** @nullable */
+  coverImageAlt?: string | null;
 }
 
 export interface PublicFairyTaleItem {
@@ -148,6 +152,8 @@ export interface PublicFairyTaleItem {
   themes?: string[] | null;
   /** @nullable */
   coverImagePath?: string | null;
+  /** @nullable */
+  coverImageAlt?: string | null;
   /** @nullable */
   publishedAt?: string | null;
 }
@@ -169,6 +175,8 @@ export interface PublicFairyTaleDetail {
   themes?: string[] | null;
   /** @nullable */
   coverImagePath?: string | null;
+  /** @nullable */
+  coverImageAlt?: string | null;
   /** @nullable */
   publishedAt?: string | null;
   availableLocales?: string[];
@@ -219,6 +227,8 @@ export interface AdminPlayTranslation {
   seoTitle?: string | null;
   /** @nullable */
   seoDescription?: string | null;
+  /** @nullable */
+  coverImageAlt?: string | null;
   /** @nullable */
   publishedAt?: string | null;
   createdAt: string;
@@ -289,6 +299,8 @@ export interface PlayTranslationInput {
   seoTitle?: string | null;
   /** @nullable */
   seoDescription?: string | null;
+  /** @nullable */
+  coverImageAlt?: string | null;
 }
 
 export interface PublicPlayItem {
@@ -307,6 +319,8 @@ export interface PublicPlayItem {
   castSize?: string | null;
   /** @nullable */
   coverImagePath?: string | null;
+  /** @nullable */
+  coverImageAlt?: string | null;
   /** @nullable */
   publishedAt?: string | null;
 }
@@ -344,6 +358,8 @@ export interface PublicPlayDetail {
   /** @nullable */
   coverImagePath?: string | null;
   /** @nullable */
+  coverImageAlt?: string | null;
+  /** @nullable */
   publishedAt?: string | null;
   availableLocales?: string[];
 }
@@ -355,6 +371,8 @@ export interface PublicAbout {
   body?: string | null;
   /** @nullable */
   authorPhotoPath?: string | null;
+  /** @nullable */
+  authorPhotoAlt?: string | null;
 }
 
 export interface AdminAbout {
@@ -363,6 +381,8 @@ export interface AdminAbout {
   body?: string | null;
   /** @nullable */
   authorPhotoPath?: string | null;
+  /** @nullable */
+  authorPhotoAlt?: string | null;
   updatedAt: string;
 }
 
@@ -371,6 +391,8 @@ export interface AboutInput {
   body?: string | null;
   /** @nullable */
   authorPhotoPath?: string | null;
+  /** @nullable */
+  authorPhotoAlt?: string | null;
 }
 
 export type DashboardStatsTranslationCoverageItem = {
