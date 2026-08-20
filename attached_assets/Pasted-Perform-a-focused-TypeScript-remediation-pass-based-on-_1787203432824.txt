@@ -1,0 +1,86 @@
+Perform a focused TypeScript remediation pass based on the completed diagnostic report.
+
+Goal:
+- resolve all 9 current durable TypeScript errors;
+- make workspace typechecking deterministic and exhaustive;
+- do not alter runtime behavior, visual design, CMS UX, database schema, production content, SEO, authentication behavior, messaging, or deployment architecture.
+
+Before changing anything, create a checkpoint.
+
+Fix these root causes only:
+
+1. OpenAPI contract drift
+Add the already-implemented fields to the correct OpenAPI schemas:
+- authorPhotoAlt
+- coverImageAlt
+
+Update both relevant input schemas and public response schemas where the application already supports these fields.
+
+Then run the project's established API code generation workflow exactly once.
+
+Important:
+- do not invent new API fields;
+- do not change existing API behavior;
+- inspect the generated diff;
+- if code generation produces unexpectedly broad unrelated changes, STOP and report before proceeding.
+
+Expected result:
+the 3 Storyteller's Stage errors in:
+- AdminAbout.tsx
+- AdminFairyTaleEdit.tsx
+- AdminPlayEdit.tsx
+are resolved.
+
+2. AuthUser shared type
+Resolve the two API errors caused by importing a non-exported AuthUser type.
+
+Use a single shared TypeScript type derived from the existing authentication/Zod contract, or another minimal shared type solution consistent with the current architecture.
+
+Do not import React-client types into the API server.
+Do not change authentication runtime behavior.
+
+3. Object-storage signed URL response
+Validate/narrow the JSON response before reading signed_url.
+
+Use a small type guard or appropriate existing Zod validation.
+
+Do not change the external storage API or upload workflow.
+
+4. Admin message route params
+Resolve the 3 GET/PATCH/DELETE message route-param errors by safely normalizing or explicitly typing req.params.id before parseInt.
+
+Do not change route behavior.
+
+5. Deterministic workspace typecheck
+Fix the typecheck workflow so that:
+- referenced libraries are built/refreshed before consumer packages are checked;
+- artifact checks do not bail after the first failing package;
+- a full workspace check reports all package errors deterministically.
+
+Do not make ignored generated declaration artifacts part of Git unless the existing project architecture explicitly requires that.
+
+Verification:
+
+Run and report:
+
+1. pnpm run typecheck:libs
+2. API package typecheck
+3. Storyteller's Stage package typecheck
+4. serial, non-bailing artifact/workspace typecheck
+5. root pnpm run typecheck
+6. production build
+
+Expected:
+- 0 durable TypeScript errors
+- production build succeeds
+- no database migration
+- no visual changes
+- no runtime/auth/API behavior changes
+
+Also show:
+- files changed;
+- generated files changed;
+- whether the OpenAPI codegen diff contained any unrelated changes.
+
+Do not perform any other cleanup or refactoring.
+Stop after verification.
