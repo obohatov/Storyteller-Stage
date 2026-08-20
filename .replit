@@ -27,3 +27,6 @@ CONTACT_RECIPIENT_EMAIL = "sonia.bohatova@gmail.com"
 CONTACT_SENDER_EMAIL = "The Storyteller's Stage <notifications@mail.bohatova.art>"
 
 [userenv.production]
+
+[nix]
+channel = "stable-25_05"
