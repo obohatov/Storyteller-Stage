@@ -62,7 +62,6 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(authMiddleware);
 
 const diagnosticToken = process.env.RATE_LIMIT_DIAGNOSTIC_TOKEN;
 if (diagnosticToken) {
@@ -70,6 +69,8 @@ if (diagnosticToken) {
     clientIpDiagnostic(req, res, diagnosticToken);
   });
 }
+
+app.use(authMiddleware);
 
 app.use("/api", router);
 
