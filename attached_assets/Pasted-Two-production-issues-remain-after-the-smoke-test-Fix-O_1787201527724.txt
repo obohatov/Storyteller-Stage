@@ -1,0 +1,189 @@
+Two production issues remain after the smoke test.
+
+Fix ONLY these two issues:
+
+1. Production rate limiting is still bypassable by spoofing `X-Forwarded-For`.
+2. Production SEO server delivery is not active: `/sitemap.xml` falls through to SPA HTML and initial HTML has no canonical/meta injection.
+
+Do not redesign anything and do not change unrelated application functionality.
+
+---
+
+# A. Fix production client-IP resolution / rate limiting
+
+The current fix uses:
+
+`app.set("trust proxy", 1)` + `req.ip`
+
+but production testing proves that rotating a client-supplied `X-Forwarded-For` still creates separate rate-limit buckets.
+
+Do NOT guess another proxy hop count.
+
+First diagnose the real Replit production proxy chain.
+
+Temporarily inspect, in a privacy-safe way, for a controlled test request:
+
+* `req.socket.remoteAddress`
+* raw `X-Forwarded-For`
+* `req.ip`
+* `req.ips`
+
+Do not permanently log real visitor IPs.
+
+Determine exactly which hop(s) are controlled by Replit infrastructure and which header values can be supplied by the client.
+
+Then configure Express `trust proxy` safely for the actual production topology.
+
+Requirements:
+
+* changing a client-provided `X-Forwarded-For` must NOT change the resolved rate-limit identity;
+* different real clients must not all collapse into the same proxy IP bucket;
+* development/preview must continue to work;
+* do not trust arbitrary forwarded headers globally.
+
+If Replit provides a reliable platform-controlled client-IP header, prefer that only if you can verify it is overwritten by the platform and cannot be spoofed by the external client.
+
+After fixing, rerun a production test with at least 7 requests while rotating spoofed `X-Forwarded-For`.
+
+Expected result:
+the requests remain in the same rate-limit bucket and eventually receive HTTP 429.
+
+Also confirm that two genuinely different client IPs would resolve to different limiter keys based on the production proxy configuration.
+
+Remove any temporary diagnostic logging after the test.
+
+---
+
+# B. Fix production SEO HTML delivery
+
+Production currently shows:
+
+* `/sitemap.xml` → SPA HTML instead of XML
+* public initial HTML → no canonical tag
+* therefore the Phase 3 `meta-server.ts` logic is not actually serving production page requests
+
+Do not patch these symptoms independently.
+
+First determine the root cause by inspecting:
+
+* the Replit deployment type
+* production run command
+* `.replit`
+* package scripts
+* production server entrypoint
+* relationship between the frontend server, API server, and `meta-server.ts`
+* SPA fallback ordering
+
+Explain briefly why `meta-server.ts` works in development but is bypassed in production.
+
+Then make the smallest safe architecture/configuration change so that the existing Phase 3 SEO implementation is actually used in production.
+
+Requirements:
+
+1. `/sitemap.xml`
+
+   * returns `200`
+   * `Content-Type` is XML
+   * contains valid XML / `<urlset>`
+   * dynamically contains only published content
+
+2. `/robots.txt`
+
+   * continues to return plain text correctly
+
+3. Initial HTML for:
+
+   * `/en`
+   * `/uk`
+   * `/ru`
+   * `/nl`
+   * a published fairy-tale detail page
+   * a published play detail page
+
+must contain server-delivered:
+
+* `<html lang>`
+* `<title>`
+* meta description
+* canonical
+* correct hreflang
+* Open Graph metadata
+* JSON-LD where applicable
+
+These tags must be present in the raw initial HTTP response, not only after React executes.
+
+4. Unknown content slugs must still return a real HTTP 404.
+
+5. `/admin/*` must remain `noindex`.
+
+6. Existing:
+
+* API routes
+* authentication
+* CMS
+* Contact
+* Script Requests
+* Resend
+* database
+* visual frontend
+* SPA navigation
+
+must continue to work.
+
+Do NOT migrate the project to Next.js or another framework.
+
+Do NOT remove the existing client-side React Helmet behavior; it may remain for SPA navigation. The server-delivered HTML and the client metadata must agree.
+
+---
+
+# Production verification
+
+After implementation and deployment, run these tests against:
+
+`https://bohatova.art`
+
+## Rate limiter
+
+1. Send repeated Contact requests while changing `X-Forwarded-For`.
+2. Confirm spoofing does not create fresh buckets.
+3. Confirm HTTP 429 occurs at the configured threshold.
+
+## SEO
+
+4. `curl https://bohatova.art/sitemap.xml`
+
+   * returns XML, not HTML.
+
+5. Raw HTML for `/en`
+
+   * contains canonical `https://bohatova.art/en`.
+
+6. Raw HTML for `/ru`
+
+   * contains localized RU metadata and RU canonical.
+
+7. Raw HTML for a published work
+
+   * contains only hreflang alternates for actually published translations.
+
+8. Unknown work slug
+
+   * returns HTTP 404.
+
+9. `/robots.txt`
+
+   * still works.
+
+10. Production build passes.
+
+STOP after these two fixes.
+
+Report:
+
+* root cause of the proxy/IP issue;
+* final production IP-resolution strategy;
+* root cause of the SEO production bypass;
+* exact production entrypoint/run-command change;
+* verification results.
+
+Do not start any unrelated task.
