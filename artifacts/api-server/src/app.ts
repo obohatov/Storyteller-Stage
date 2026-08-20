@@ -5,6 +5,7 @@ import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { authMiddleware } from "./middlewares/authMiddleware";
+import { clientIpDiagnostic } from "./lib/clientIpDiagnostic";
 
 const app: Express = express();
 
@@ -62,6 +63,13 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(authMiddleware);
+
+const diagnosticToken = process.env.RATE_LIMIT_DIAGNOSTIC_TOKEN;
+if (diagnosticToken) {
+  app.get("/api/internal/client-ip-diagnostic", (req, res) => {
+    clientIpDiagnostic(req, res, diagnosticToken);
+  });
+}
 
 app.use("/api", router);
 

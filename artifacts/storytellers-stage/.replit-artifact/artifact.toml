@@ -14,14 +14,18 @@ localPort = 24934
 [services.development]
 run = "pnpm --filter @workspace/storytellers-stage run dev"
 
-[services.production]
-build = [ "pnpm", "--filter", "@workspace/storytellers-stage", "run", "build" ]
-serve = "static"
-publicDir = "artifacts/storytellers-stage/dist/public"
+[services.production.build]
+args = [ "pnpm", "--filter", "@workspace/storytellers-stage", "run", "build" ]
 
-[[services.production.rewrites]]
-from = "/*"
-to = "/index.html"
+[services.production.build.env]
+NODE_ENV = "production"
+
+[services.production.run]
+args = [ "pnpm", "--filter", "@workspace/storytellers-stage", "run", "serve" ]
+
+[services.production.run.env]
+PORT = "24934"
+NODE_ENV = "production"
 
 [services.env]
 PORT = "24934"
