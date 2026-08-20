@@ -32,10 +32,10 @@ export function createRateLimiter(opts: {
     res: Response,
     next: NextFunction,
   ): void {
-    // req.ip is resolved by Express using the "trust proxy" setting on the app.
-    // With trust proxy = 1 (set in app.ts), Express reads the real client IP
-    // from the X-Forwarded-For entry added by Replit's proxy and ignores any
-    // client-supplied X-Forwarded-For values, preventing spoofing.
+    // req.ip is resolved by Express using the environment-specific trust proxy
+    // setting in app.ts. Production trusts the measured Replit proxy chain,
+    // so this resolves to the platform-added client address rather than an
+    // arbitrary caller-provided X-Forwarded-For prefix.
     const ip = req.ip ?? req.socket?.remoteAddress ?? "unknown";
 
     const now = Date.now();

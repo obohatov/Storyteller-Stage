@@ -27,4 +27,3 @@ CONTACT_RECIPIENT_EMAIL = "sonia.bohatova@gmail.com"
 CONTACT_SENDER_EMAIL = "The Storyteller's Stage <notifications@mail.bohatova.art>"
 
 [userenv.production]
-RATE_LIMIT_DIAGNOSTIC_TOKEN = "topology-probe-2026-08-20"

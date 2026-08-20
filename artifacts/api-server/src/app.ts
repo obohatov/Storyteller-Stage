@@ -5,14 +5,16 @@ import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { authMiddleware } from "./middlewares/authMiddleware";
-import { clientIpDiagnostic } from "./lib/clientIpDiagnostic";
 
 const app: Express = express();
 
-// Trust exactly one upstream proxy hop (Replit's reverse proxy).
-// This makes req.ip resolve to the real client IP from X-Forwarded-For
-// while ignoring any client-supplied X-Forwarded-For values.
-app.set("trust proxy", 1);
+// Production measurements show four Replit-managed hops between this app and
+// the true client address. Any caller-supplied X-Forwarded-For entries precede
+// those hops, so trusting exactly four hops resolves req.ip to the platform-
+// inserted client entry without trusting caller-controlled prefixes.
+//
+// Preview/dev continues to use its existing single local proxy hop.
+app.set("trust proxy", process.env.NODE_ENV === "production" ? 4 : 1);
 
 // ── CORS ─────────────────────────────────────────────────────────────────────
 // Explicit allowlist — never reflect the request Origin back unconditionally.
@@ -62,13 +64,6 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-const diagnosticToken = process.env.RATE_LIMIT_DIAGNOSTIC_TOKEN;
-if (diagnosticToken) {
-  app.get("/api/internal/client-ip-diagnostic", (req, res) => {
-    clientIpDiagnostic(req, res, diagnosticToken);
-  });
-}
 
 app.use(authMiddleware);
 
